@@ -1,0 +1,72 @@
+---
+/* ══════════════════════════════════════════════════════════
+   Loading screen — a ~1.4s "boot log" on every open/refresh.
+   ──────────────────────────────────────────────────────────
+   Pure CSS timeline: it types, logs, then lifts itself off the page,
+   so it can never trap anyone even if JavaScript fails. The page
+   underneath renders immediately (nothing waits on the loader).
+   site.ts only swaps in a random quip and lets a click / key skip it.
+   ══════════════════════════════════════════════════════════ */
+import { profile } from "../data/site";
+const count = 4;
+---
+<div id="loader" class="ld" aria-hidden="true">
+  <div class="ld-box">
+    <div class="ld-mark"><span>{profile.initials}</span></div>
+    <pre class="ld-log"><span class="ld-l ld-l1"><span class="ld-prompt">~/elroni</span> <span class="ld-cmd">npm run hire-me</span></span>
+<span class="ld-l ld-l2"><span class="ld-dim">›</span> compiling {count} projects <span class="ld-dim">…</span> <span class="ld-ok">done</span></span>
+<span class="ld-l ld-l3"><span class="ld-dim">›</span> <span id="ld-quip">feeding the rubber duck</span><span class="ld-dim">…</span></span>
+<span class="ld-l ld-l4"><span class="ld-ok">✓ ready</span> <span class="ld-dim">— welcome in</span></span></pre>
+  </div>
+  <div class="ld-bar"></div>
+</div>
+
+<style>
+  .ld {
+    position: fixed; inset: 0; z-index: 1000;
+    display: grid; place-items: center;
+    background: var(--bg); color: var(--ink);
+    animation: ld-exit 0.5s cubic-bezier(0.76, 0, 0.24, 1) 1.05s forwards;
+  }
+  .ld.is-skipped { animation: ld-exit 0.32s cubic-bezier(0.76, 0, 0.24, 1) forwards; }
+  @keyframes ld-exit {
+    to { transform: translateY(-100%); visibility: hidden; pointer-events: none; }
+  }
+  .ld-box { display: grid; justify-items: center; gap: 1.4rem; padding: 1.5rem; }
+  .ld-mark {
+    width: 64px; height: 64px; border-radius: 18px;
+    display: grid; place-items: center;
+    background: var(--ink); color: var(--bg);
+    font: 400 1.9rem/1 var(--font-serif); letter-spacing: -0.02em;
+    animation: ld-pop 0.5s var(--ease-out) both;
+  }
+  .ld-mark span { transform: translateY(1px); }
+  @keyframes ld-pop { from { transform: scale(0.85) rotate(-6deg); opacity: 0; } }
+  .ld-log {
+    margin: 0; min-width: min(30ch, 82vw);
+    font: 400 0.8rem/1.85 var(--font-mono); color: var(--ink-2);
+    white-space: pre-wrap;
+  }
+  .ld-l { display: block; opacity: 0; animation: ld-in 0.18s ease-out forwards; }
+  .ld-l1 { animation-delay: 0.08s; }
+  .ld-l2 { animation-delay: 0.46s; }
+  .ld-l3 { animation-delay: 0.64s; }
+  .ld-l4 { animation-delay: 0.84s; }
+  @keyframes ld-in { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: none; } }
+  .ld-prompt { color: var(--accent); }
+  .ld-cmd {
+    display: inline-block; vertical-align: bottom; overflow: hidden; white-space: nowrap;
+    width: 0; border-right: 2px solid var(--accent);
+    animation: ld-type 0.34s steps(15, end) 0.12s forwards, ld-caret 0.5s step-end 3;
+  }
+  @keyframes ld-type { to { width: 15.2ch; } }
+  @keyframes ld-caret { 50% { border-color: transparent; } }
+  .ld-dim { color: var(--muted); }
+  .ld-ok { color: var(--ok); }
+  .ld-bar {
+    position: absolute; left: 0; right: 0; bottom: 0; height: 2px;
+    background: var(--accent); transform-origin: left; transform: scaleX(0);
+    animation: ld-progress 1s cubic-bezier(0.65, 0, 0.35, 1) forwards;
+  }
+  @keyframes ld-progress { to { transform: scaleX(1); } }
+</style>

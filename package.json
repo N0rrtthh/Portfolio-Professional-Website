@@ -1,0 +1,22 @@
+{
+  "name": "elroni-quinones-portfolio",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "resume": "node scripts/build-resume.mjs",
+    "assets": "node scripts/build-assets.mjs"
+  },
+  "dependencies": {
+    "astro": "7.4.2"
+  },
+  "devDependencies": {
+    "playwright": "1.62.0"
+  },
+  "engines": {
+    "node": ">=22.23.4"
+  }
+}

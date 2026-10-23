@@ -1,0 +1,99 @@
+---
+import Icon from "./Icon.astro";
+import { profile } from "../data/site";
+const base = import.meta.env.BASE_URL.replace(/\/?$/, "/");
+const links = [
+  { href: "#projects", label: "Projects" },
+  { href: "#skills", label: "Skills" },
+  { href: "#about", label: "About" },
+  { href: "#contact", label: "Contact" },
+];
+---
+<header class="nav">
+  <div class="container nav-inner">
+    <a class="brand" href="#top" aria-label={`${profile.name} — back to top`}>
+      <span class="brand-mark" aria-hidden="true">{profile.initials}</span>
+      <span class="brand-name">{profile.name}</span>
+    </a>
+
+    <nav class="nav-links" aria-label="Sections">
+      {links.map((l) => <a href={l.href}>{l.label}</a>)}
+    </nav>
+
+    <div class="nav-actions">
+      <button class="icon-btn theme-btn" type="button" data-theme-toggle aria-label="Switch theme">
+        <Icon name="moon" class="i-moon" />
+        <Icon name="sun" class="i-sun" />
+      </button>
+      <a class="btn btn-primary btn-sm nav-resume" href={`${base}${profile.resumeFile}`} download aria-label="Download résumé (PDF)">
+        <Icon name="download" /> <span>Résumé</span>
+      </a>
+      <details class="menu">
+        <summary class="icon-btn" aria-label="Open section menu">
+          <Icon name="menu" class="i-open" />
+          <Icon name="x" class="i-close" />
+        </summary>
+        <nav class="menu-panel card" aria-label="Sections">
+          {links.map((l) => <a href={l.href} data-menu-link>{l.label}</a>)}
+        </nav>
+      </details>
+    </div>
+  </div>
+</header>
+
+<style>
+  .nav {
+    position: sticky; top: 0; z-index: 50;
+    background: color-mix(in srgb, var(--bg) 92%, transparent);
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.2s ease, background-color 0.2s ease;
+  }
+  @supports (backdrop-filter: blur(1px)) {
+    .nav { background: color-mix(in srgb, var(--bg) 80%, transparent); backdrop-filter: saturate(1.4) blur(10px); }
+  }
+  .nav:global(.is-scrolled) { border-bottom-color: var(--line); }
+  .nav-inner { height: var(--nav-h); display: flex; align-items: center; gap: 1rem; }
+
+  .brand { display: inline-flex; align-items: center; gap: 0.6rem; text-decoration: none; margin-right: auto; min-height: 44px; }
+  .brand-mark {
+    width: 32px; height: 32px; border-radius: 9px; display: grid; place-items: center;
+    background: var(--ink); color: var(--bg); font: 400 1.05rem/1 var(--font-serif); letter-spacing: -0.02em;
+  }
+  .brand-name { font-weight: 600; font-size: 0.95rem; letter-spacing: -0.01em; }
+
+  .nav-links { display: flex; gap: 0.25rem; }
+  .nav-links a {
+    padding: 0.5rem 0.75rem; border-radius: 999px; text-decoration: none;
+    font-size: 0.9rem; font-weight: 500; color: var(--muted);
+    transition: color 0.15s ease, background-color 0.15s ease;
+  }
+  .nav-links a:hover { color: var(--ink); background: var(--surface-2); }
+
+  .nav-actions { display: flex; align-items: center; gap: 0.5rem; }
+  .theme-btn :global(.i-sun) { display: none; }
+  :global([data-theme="dark"]) .theme-btn :global(.i-sun) { display: block; }
+  :global([data-theme="dark"]) .theme-btn :global(.i-moon) { display: none; }
+
+  .menu { position: relative; display: none; }
+  .menu summary { list-style: none; }
+  .menu summary::-webkit-details-marker { display: none; }
+  .menu :global(.i-close) { display: none; }
+  .menu[open] :global(.i-close) { display: block; }
+  .menu[open] :global(.i-open) { display: none; }
+  .menu-panel {
+    position: absolute; right: 0; top: calc(100% + 8px); min-width: 190px; padding: 0.4rem;
+    display: grid; box-shadow: var(--shadow-lg);
+  }
+  .menu-panel a { padding: 0.75rem 0.9rem; border-radius: 8px; text-decoration: none; font-weight: 500; }
+  .menu-panel a:hover { background: var(--surface-2); }
+
+  @media (max-width: 860px) {
+    .nav-links { display: none; }
+    .menu { display: block; }
+  }
+  @media (max-width: 420px) {
+    .brand-name { display: none; }
+    .nav-resume span { display: none; }
+    .nav-resume { width: 40px; padding: 0; }
+  }
+</style>

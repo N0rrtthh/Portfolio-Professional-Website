@@ -1,0 +1,240 @@
+---
+import Icon from "./Icon.astro";
+import ProjectMedia from "./ProjectMedia.astro";
+import { projects, otherWork } from "../data/site";
+const list = projects.filter((p) => p.published);
+---
+<section id="projects" class="section container" aria-labelledby="projects-title">
+  <div class="section-head">
+    <h2 id="projects-title" class="section-title">Selected projects</h2>
+    <p class="section-lede">Four builds that show how I work — what the problem was, what I did, and what shipped. Open a case study for the details.</p>
+  </div>
+
+  <ul class="grid" role="list">
+    {list.map((p) => (
+      <li class="proj card">
+        <ProjectMedia image={p.image} phoneImage={p.phoneImage} alt={`${p.name} screenshot`} />
+        <div class="proj-body">
+          <div class="proj-top">
+            <h3 class="proj-name">{p.name}</h3>
+            <span class="num muted proj-year">{p.year}</span>
+          </div>
+          <p class="proj-kind">{p.kind}</p>
+          <p class="proj-problem">{p.problem}</p>
+          <p class="proj-role"><strong>My role.</strong> {p.contribution}</p>
+          <ul class="proj-features" role="list">
+            {p.features.slice(0, 3).map((f) => (
+              <li><Icon name="check" size={15} /> <span>{f}</span></li>
+            ))}
+          </ul>
+          <ul class="tags" aria-label="Technologies">
+            {p.tech.map((t) => <li class="tag">{t}</li>)}
+          </ul>
+          <div class="proj-actions">
+            <button class="btn btn-ghost btn-sm" type="button" command="show-modal" commandfor={`case-${p.slug}`}>
+              Case study <Icon name="arrowRight" />
+            </button>
+            {p.github?.map((g) => (
+              <a class="text-link small" href={g.href} target="_blank" rel="noopener noreferrer">
+                <Icon name="github" size={15} /> {p.github && p.github.length > 1 ? g.label : "GitHub"}<span class="sr-only"> repository for {p.name} (opens in new tab)</span>
+              </a>
+            ))}
+            {p.live && (
+              <a class="text-link small" href={p.live.href} target="_blank" rel="noopener noreferrer">
+                <Icon name="external" size={15} /> {p.live.label}<span class="sr-only"> for {p.name} (opens in new tab)</span>
+              </a>
+            )}
+            {p.note && !p.github && <span class="proj-note"><Icon name="lock" size={14} /> {p.note}</span>}
+          </div>
+        </div>
+      </li>
+    ))}
+  </ul>
+
+  <div class="other">
+    <h3 class="other-title">Also built</h3>
+    <ul class="other-list" role="list">
+      {otherWork.map((o) => (
+        <li>
+          {o.href ? (
+            <a href={o.href} target="_blank" rel="noopener noreferrer">
+              <span class="other-name">{o.name}</span>
+              <span class="other-what">{o.what}</span>
+              <span class="other-tech">{o.tech}</span>
+              <Icon name="arrowUpRight" size={15} />
+              <span class="sr-only">(opens in new tab)</span>
+            </a>
+          ) : (
+            <span class="other-row"><span class="other-name">{o.name}</span><span class="other-what">{o.what}</span><span class="other-tech">{o.tech}</span></span>
+          )}
+        </li>
+      ))}
+    </ul>
+  </div>
+
+  {list.map((p) => (
+    <dialog class="case" id={`case-${p.slug}`} aria-labelledby={`case-${p.slug}-title`}>
+      <div class="case-panel">
+        <header class="case-head">
+          <div>
+            <p class="proj-kind">{p.kind} · <span class="num">{p.year}</span></p>
+            <h3 id={`case-${p.slug}-title`} class="case-title">{p.name}</h3>
+          </div>
+          <button class="icon-btn" type="button" command="close" commandfor={`case-${p.slug}`} aria-label={`Close ${p.name} case study`} autofocus>
+            <Icon name="x" />
+          </button>
+        </header>
+
+        <div class="case-body">
+          <ProjectMedia image={p.image} phoneImage={p.phoneImage} alt={`${p.name} screenshot`} large />
+
+          <div class="case-grid">
+            <div class="case-main">
+              <section>
+                <h4>The problem</h4>
+                <p>{p.problem}</p>
+              </section>
+              {p.details.role && (
+                <section>
+                  <h4>My role</h4>
+                  <p>{p.details.role} {p.contribution}</p>
+                </section>
+              )}
+              {p.details.implementation.length > 0 && (
+                <section>
+                  <h4>How it works</h4>
+                  <ul>{p.details.implementation.map((i) => <li>{i}</li>)}</ul>
+                </section>
+              )}
+              {p.details.challenges.length > 0 && (
+                <section>
+                  <h4>Challenges & approach</h4>
+                  <ul class="challenges">
+                    {p.details.challenges.map((c) => (
+                      <li><strong>{c.challenge}</strong> {c.approach}</li>
+                    ))}
+                  </ul>
+                </section>
+              )}
+            </div>
+
+            <aside class="case-side">
+              {p.details.outcome.length > 0 && (
+                <section class="outcome">
+                  <h4>Results</h4>
+                  <ul>{p.details.outcome.map((o) => <li>{o}</li>)}</ul>
+                </section>
+              )}
+              <section>
+                <h4>Built with</h4>
+                <ul class="tags">{p.tech.map((t) => <li class="tag">{t}</li>)}</ul>
+              </section>
+              <section>
+                <h4>Links</h4>
+                <div class="case-links">
+                  {p.live && (
+                    <a class="btn btn-primary btn-sm" href={p.live.href} target="_blank" rel="noopener noreferrer">
+                      <Icon name="external" /> {p.live.label}
+                    </a>
+                  )}
+                  {p.github?.map((g) => (
+                    <a class="btn btn-ghost btn-sm" href={g.href} target="_blank" rel="noopener noreferrer">
+                      <Icon name="github" /> {p.github && p.github.length > 1 ? `${g.label} source` : "Source on GitHub"}
+                    </a>
+                  ))}
+                  {p.note && <p class="proj-note"><Icon name="lock" size={14} /> {p.note}</p>}
+                </div>
+              </section>
+            </aside>
+          </div>
+        </div>
+      </div>
+    </dialog>
+  ))}
+</section>
+
+<style>
+  .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.25rem; padding: 0; list-style: none; }
+  .proj { overflow: hidden; display: flex; flex-direction: column; transition: border-color 0.2s ease, box-shadow 0.25s ease, transform 0.25s var(--ease-out); }
+  @media (hover: hover) {
+    .proj:hover { border-color: var(--line-strong); box-shadow: var(--shadow); transform: translateY(-2px); }
+  }
+  .proj-body { padding: 1.15rem 1.25rem 1.2rem; display: flex; flex-direction: column; gap: 0.65rem; flex: 1; }
+  .proj-top { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; }
+  .proj-name { font: 400 1.75rem/1 var(--font-serif); letter-spacing: -0.015em; }
+  .proj-year { font-size: 0.85rem; }
+  .proj-kind { margin-top: -0.35rem; color: var(--muted); font-size: 0.82rem; font-weight: 550; }
+  .proj-problem { color: var(--ink-2); font-size: 0.94rem; line-height: 1.55; }
+  .proj-role { font-size: 0.9rem; color: var(--ink-2); line-height: 1.5; }
+  .proj-role strong { color: var(--ink); font-weight: 650; }
+  .proj-features { display: grid; gap: 0.3rem; padding: 0; list-style: none; font-size: 0.875rem; color: var(--ink-2); }
+  .proj-features li { display: flex; gap: 0.5rem; align-items: flex-start; }
+  .proj-features :global(svg) { flex: none; margin-top: 0.22rem; color: var(--accent); }
+  .proj-actions { margin-top: auto; padding-top: 0.6rem; display: flex; flex-wrap: wrap; align-items: center; gap: 0.25rem 1rem; }
+  .proj-actions .btn { margin-right: 0.25rem; }
+  .text-link.small { font-size: 0.875rem; }
+  .proj-note { display: inline-flex; align-items: center; gap: 0.35rem; color: var(--muted); font-size: 0.82rem; }
+  .proj-note :global(svg) { flex: none; }
+
+  .other { margin-top: 1.75rem; display: grid; grid-template-columns: 10rem 1fr; gap: 1rem; align-items: start; }
+  .other-title { font-size: 0.9rem; font-weight: 650; padding-top: 0.7rem; }
+  .other-list { padding: 0; list-style: none; border-top: 1px solid var(--line); }
+  .other-list li { border-bottom: 1px solid var(--line); }
+  .other-list a, .other-row {
+    display: grid; grid-template-columns: 8rem minmax(0, 1fr) auto 16px; gap: 1rem; align-items: center;
+    padding: 0.7rem 0.25rem; text-decoration: none; min-height: 44px;
+  }
+  .other-row { grid-template-columns: 8rem minmax(0, 1fr) auto; }
+  .other-list a:hover .other-name { color: var(--accent); }
+  .other-name { font-weight: 600; font-size: 0.92rem; }
+  .other-what { color: var(--muted); font-size: 0.9rem; }
+  .other-tech { color: var(--muted); font-size: 0.75rem; }
+
+  /* ── Case-study dialog ──────────────────────────────────── */
+  .case {
+    margin: auto; /* the global reset zeroes margins; dialogs centre via auto */
+    width: min(920px, calc(100vw - 2rem)); max-width: none; max-height: calc(100svh - 2rem);
+    padding: 0; border: 1px solid var(--line); border-radius: 18px;
+    background: var(--surface); color: var(--ink); box-shadow: var(--shadow-lg);
+    overflow: hidden;
+  }
+  .case[open] { display: flex; animation: case-in 0.28s var(--ease-out); }
+  .case::backdrop { background: rgb(10 10 12 / 0.55); backdrop-filter: blur(3px); animation: fade 0.2s ease-out; }
+  @keyframes case-in { from { opacity: 0; transform: translateY(10px) scale(0.985); } }
+  @keyframes fade { from { opacity: 0; } }
+  .case-panel { display: flex; flex-direction: column; width: 100%; max-height: calc(100svh - 2rem); }
+  .case-head {
+    display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem;
+    padding: 1.1rem 1.25rem 1rem 1.5rem; border-bottom: 1px solid var(--line);
+  }
+  .case-head .proj-kind { margin: 0 0 0.25rem; }
+  .case-title { font: 400 2.1rem/1 var(--font-serif); letter-spacing: -0.02em; }
+  .case-body { overflow-y: auto; overscroll-behavior: contain; padding: 1.25rem 1.5rem 1.6rem; }
+  .case-grid { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: 2rem; margin-top: 1.5rem; }
+  .case-main, .case-side { display: grid; gap: 1.35rem; align-content: start; }
+  .case h4 { font-size: 0.78rem; font-weight: 650; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); margin-bottom: 0.45rem; }
+  .case p, .case li { font-size: 0.93rem; line-height: 1.6; color: var(--ink-2); }
+  .case-main ul, .outcome ul { padding-left: 1.1rem; display: grid; gap: 0.4rem; }
+  .challenges strong { color: var(--ink); font-weight: 650; }
+  .outcome { padding: 1rem 1.1rem; border-radius: 12px; background: var(--accent-soft); }
+  .outcome h4 { color: var(--accent); }
+  .outcome li { color: var(--ink); }
+  .case-links { display: flex; flex-direction: column; align-items: flex-start; gap: 0.5rem; }
+
+  @media (max-width: 860px) {
+    .grid { grid-template-columns: 1fr; }
+    .case-grid { grid-template-columns: 1fr; gap: 1.35rem; }
+    .other { grid-template-columns: 1fr; gap: 0.25rem; }
+    .other-title { padding-top: 0; }
+  }
+  @media (max-width: 560px) {
+    .other-list a { grid-template-columns: minmax(0, 1fr) 16px; gap: 0.15rem 0.75rem; }
+    .other-list a .other-name { grid-column: 1; }
+    .other-list a .other-what, .other-list a .other-tech { grid-column: 1; }
+    .other-list a :global(svg) { grid-column: 2; grid-row: 1; }
+    .case { width: 100vw; max-height: 100svh; height: 100svh; border-radius: 0; border: 0; }
+    .case-panel { max-height: 100svh; }
+    .case-body { padding: 1rem 1.1rem 1.5rem; }
+    .case-head { padding: 0.9rem 1rem 0.85rem 1.1rem; }
+  }
+</style>
