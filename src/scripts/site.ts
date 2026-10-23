@@ -7,8 +7,9 @@
      · project case studies (<dialog>) — fallback for browsers without
        the `commandfor` invoker attribute
      · copy-email button
-     · nav: hairline once scrolled
+     · nav: hairline once scrolled, live liquid-glass lens on the pill
    ══════════════════════════════════════════════════════════ */
+import { initNavLens } from "./lens";
 
 (window as Window & { __eqReady?: boolean }).__eqReady = true;
 const rootEl = document.documentElement;
@@ -110,32 +111,32 @@ document.querySelectorAll<HTMLButtonElement>("[data-theme-toggle]").forEach((btn
 });
 
 /* ── Liquid glass ─────────────────────────────────────────── */
-/* Real refracting glass (WebGL). The nav bar always gets it ("nav" mode);
-   glass mode upgrades the whole page ("full"). The module is fetched after
-   the intro has settled, so it never competes with the first paint. */
+/* Glass mode's refracting cards (WebGL) are fetched only while glass mode
+   is on. The nav's live lens (lens.ts) runs in every mode. */
 let stopLiquid: (() => void) | null = null;
-let liquidMode: "full" | "nav" | null = null;
+let liquidOn = false;
 let liquidBusy = false;
 let liquidAllowed = false;
 async function syncLiquid(on: boolean) {
-  const want: "full" | "nav" = on ? "full" : "nav";
-  if (!liquidAllowed || liquidBusy || liquidMode === want) return;
+  if (!liquidAllowed || liquidBusy || liquidOn === on) return;
   liquidBusy = true;
   try {
     stopLiquid?.();
     stopLiquid = null;
-    liquidMode = null;
-    const { startLiquid } = await import("./liquid");
-    stopLiquid = await startLiquid(want);
-    liquidMode = want;
+    liquidOn = false;
+    if (on) {
+      const { startLiquid } = await import("./liquid");
+      stopLiquid = await startLiquid();
+      liquidOn = true;
+    }
   } catch (err) {
     console.warn("[glass] could not load WebGL glass", err);
   } finally {
     liquidBusy = false;
   }
   // The toggle may have flipped while we were loading.
-  const now: "full" | "nav" = root.dataset.glass === "on" ? "full" : "nav";
-  if (liquidMode && liquidMode !== now) void syncLiquid(now === "full");
+  const now = root.dataset.glass === "on";
+  if (now !== liquidOn) void syncLiquid(now);
 }
 
 function applyGlass(on: boolean) {
@@ -154,28 +155,18 @@ function applyGlass(on: boolean) {
 }
 applyGlass(root.dataset.glass === "on");
 
-/* Start the WebGL glass without ever blocking the load: compiling its
-   shaders is one long task (~100ms+ on phones). The nav-only glass waits for
-   the visitor's first interaction — until then the nav shows the CSS frosted
-   glass, which looks nearly identical. Glass mode (opted in) loads on idle. */
+/* WebGL shaders compile in one long task, so glass mode (when it was left
+   on) starts only once the intro has settled and the page is idle. */
 {
   const go = () => {
-    if (liquidAllowed) return;
     liquidAllowed = true;
-    for (const t of EVENTS) removeEventListener(t, go, true);
     void syncLiquid(root.dataset.glass === "on");
   };
-  const EVENTS = ["pointerdown", "pointermove", "wheel", "touchstart", "keydown", "scroll"] as const;
-  const arm = () => {
-    for (const t of EVENTS) addEventListener(t, go, { capture: true, passive: true, once: true });
-  };
   const ric = (window as Window & { requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => number }).requestIdleCallback;
-  // Armed after the intro so the loader's own animation is never interrupted.
-  setTimeout(() => {
-    if (root.dataset.glass === "on") ric ? ric(go, { timeout: 2500 }) : go();
-    else arm();
-  }, 1600);
+  setTimeout(() => (ric ? ric(go, { timeout: 2500 }) : go()), 1600);
 }
+
+initNavLens();
 
 document.querySelectorAll<HTMLButtonElement>("[data-glass-toggle]").forEach((btn) => {
   btn.addEventListener("click", () => revealFrom(btn, () => applyGlass(root.dataset.glass !== "on")));

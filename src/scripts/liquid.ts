@@ -12,10 +12,8 @@
      plate per card at the card's document position, plus the gradient
      canvas fixed to the viewport. Plates scroll with their cards, so the
      library only re-renders the on-screen ones when the gradient repaints.
-   · A fixed FRONT stage sits just under the nav with its own plate that
-     follows the nav bar → pill. Its copy of the gradient is clipped to
-     nothing on screen (the library still samples its pixels), so page
-     content never gets covered.
+   · The nav is not part of this: it refracts the live page through an
+     SVG backdrop filter instead (scripts/lens.ts), in every mode.
    · The real elements above the plates turn transparent, so their text
      and icons stay razor-sharp on top of the refraction.
 
@@ -77,93 +75,44 @@ function el<K extends keyof HTMLElementTagNameMap>(tag: K, cls: string, css: str
   return e;
 }
 
-/* Nav-only backdrop for the normal light/dark site: the page's own paper
-   or ink with a faint fox-orange warmth, painted once (static, so the nav
-   glass costs nothing while idle). */
-const NAV_PALETTE = {
-  light: {
-    base: ["#ffffff", "#f8f6f2"],
-    blobs: [
-      { c: "255,138,76", a: 0.1, r: 0.5, x: 0.12, y: 0.08, fx: 0, fy: 0, ph: 0 },
-      { c: "240,90,34", a: 0.06, r: 0.4, x: 0.88, y: 0.05, fx: 0, fy: 0, ph: 0 },
-    ] as Blob[],
-  },
-  dark: {
-    base: ["#1c1d21", "#1a1a1d"],
-    blobs: [
-      { c: "240,90,34", a: 0.06, r: 0.5, x: 0.12, y: 0.08, fx: 0, fy: 0, ph: 0 },
-      { c: "194,65,12", a: 0.04, r: 0.4, x: 0.88, y: 0.05, fx: 0, fy: 0, ph: 0 },
-    ] as Blob[],
-  },
-};
-/* Over a near-flat backdrop the playground's colour fringe and lift read as
-   a coloured line and a muddy band (most visibly on dark), so the nav-only
-   mode trims just those; everything else keeps the reference settings. */
-const NAV_TUNE = {
-  light: { chromAberration: 0.06 },
-  dark: { chromAberration: 0.03, brightness: 0.02, saturation: 0.2 },
-};
-
-/**
- * mode "full": glass mode — every card plus the nav, over the drifting
- *              fox-orange gradient.
- * mode "nav":  the normal light/dark site — only the nav bar/pill gets the
- *              liquid glass, over a static, theme-matched backdrop.
- */
-export async function startLiquid(mode: "full" | "nav" = "full"): Promise<() => void> {
-  const full = mode === "full";
-  // Nav-only mode paints once (theme flips repaint): no idle GPU work.
-  const reduced = !full || matchMedia("(prefers-reduced-motion: reduce)").matches;
+export async function startLiquid(): Promise<() => void> {
+  const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   /* ── Stages ─────────────────────────────────────────────────
      BACK spans the whole document (html is position:relative in glass
      mode), so each card's plate sits at fixed document coordinates and
      scrolls with its card: plates never move relative to the library's
      root, so scrolling alone re-renders nothing. The gradient canvas is
-     position:fixed inside it, so it stays put like a wallpaper.
-     FRONT is a fixed layer just under the nav for the nav's own plate. */
+     position:fixed inside it, so it stays put like a wallpaper. */
   const back = el("div", "lg-stage lg-back", "position:absolute;inset:0;z-index:-1;pointer-events:none;");
-  const front = el("div", "lg-stage lg-front", "position:fixed;inset:0;z-index:49;pointer-events:none;");
   back.setAttribute("aria-hidden", "true");
-  front.setAttribute("aria-hidden", "true");
   const bgBack = el("canvas", "lg-bg", "position:fixed;z-index:0;inset:0;width:100%;height:100%;");
-  // Sampled by the library, never seen: clipped away so content stays visible.
-  const bgFront = el("canvas", "lg-bg", "position:absolute;inset:0;width:100%;height:100%;clip-path:inset(50%);");
   back.append(bgBack);
-  front.append(bgFront);
 
-  const targets = full ? Array.from(document.querySelectorAll<HTMLElement>(CARD_TARGETS)) : [];
+  const targets = Array.from(document.querySelectorAll<HTMLElement>(CARD_TARGETS));
   // z-index:1 makes each plate its own stacking context: the library paints
   // its output canvas at z-index:-1, which would otherwise drop below the
   // gradient canvas.
   const plateCss = "position:absolute;z-index:1;left:-4000px;top:0;width:10px;height:10px;";
   const plates = targets.map(() => el("div", "lg-plate", plateCss));
   back.append(...plates);
-  const navPlate = el("div", "lg-plate", "position:absolute;z-index:1;left:0;top:0;width:10px;height:10px;");
-  front.append(navPlate);
-  if (full) document.body.prepend(back);
-  document.body.append(front);
+  document.body.prepend(back);
 
   /* ── Gradient painter (low-res, smooth when scaled) ───────── */
   const g1 = bgBack.getContext("2d")!;
-  const g2 = bgFront.getContext("2d")!;
   let back$: LiquidGlass | null = null;
-  let front$: LiquidGlass | null = null;
   const size = () => {
     const w = Math.max(160, Math.ceil(innerWidth / 6));
     const h = Math.max(120, Math.ceil(innerHeight / 6));
-    for (const c of [bgBack, bgFront]) {
-      if (c.width !== w || c.height !== h) {
-        c.width = w;
-        c.height = h;
-      }
+    if (bgBack.width !== w || bgBack.height !== h) {
+      bgBack.width = w;
+      bgBack.height = h;
     }
   };
   const paint = (t: number) => {
     const w = bgBack.width;
     const h = bgBack.height;
-    const set = full ? PALETTE : NAV_PALETTE;
-    const pal = html.dataset.theme === "dark" ? set.dark : set.light;
+    const pal = html.dataset.theme === "dark" ? PALETTE.dark : PALETTE.light;
     const lg = g1.createLinearGradient(0, 0, w, h);
     lg.addColorStop(0, pal.base[0]);
     lg.addColorStop(1, pal.base[1]);
@@ -182,11 +131,9 @@ export async function startLiquid(mode: "full" | "nav" = "full"): Promise<() => 
       g1.fillStyle = rg;
       g1.fillRect(0, 0, w, h);
     }
-    g2.drawImage(bgBack, 0, 0);
     // Only glasses overlapping the (fixed, on-screen) canvas re-render —
     // i.e. just the cards currently in view.
     back$?.markChanged(bgBack);
-    front$?.markChanged(bgFront);
   };
   size();
   paint(0);
@@ -196,10 +143,9 @@ export async function startLiquid(mode: "full" | "nav" = "full"): Promise<() => 
      transformed rect: the library keeps a GPU framebuffer per distinct
      glass size, so sizes that change every frame would allocate buffers
      every frame. Styles are written only when they actually change. */
-  const applyConfig = (plate: HTMLElement, w: number, h: number, radius: number, tune: object = {}) => {
+  const applyConfig = (plate: HTMLElement, w: number, h: number, radius: number) => {
     const cfg = {
       ...SETTINGS,
-      ...tune,
       cornerRadius: Math.round(Math.min(radius, h / 2, w / 2)),
       zRadius: Math.round(Math.min(SETTINGS.zRadius, h / 2 - 2)),
     };
@@ -260,19 +206,6 @@ export async function startLiquid(mode: "full" | "nav" = "full"): Promise<() => 
     });
   };
 
-  const navInner = document.querySelector<HTMLElement>(".nav .nav-inner");
-  const syncNav = () => {
-    if (!navInner) return;
-    const r = navInner.getBoundingClientRect();
-    // The bar → pill morph animates the size; 48px buckets keep it to a
-    // handful of framebuffer sizes.
-    const w = Math.max(48, Math.round(r.width / 48) * 48);
-    const h = Math.max(6, Math.round(r.height / 6) * 6);
-    setBox(navPlate, r.left + (r.width - w) / 2, r.top + (r.height - h) / 2, w, h);
-    const tune = full ? {} : NAV_TUNE[html.dataset.theme === "dark" ? "dark" : "light"];
-    applyConfig(navPlate, w, h, parseFloat(getComputedStyle(navInner).borderTopLeftRadius) || 0, tune);
-  };
-
   /* ── Re-measure cards only when layout can have moved them (resize,
         content height changes, reveals) — never per scroll frame. */
   let pending = 0;
@@ -286,14 +219,12 @@ export async function startLiquid(mode: "full" | "nav" = "full"): Promise<() => 
   document.querySelectorAll(".reveal").forEach((n) => revealObs.observe(n, { attributes: true, attributeFilter: ["class"] }));
   const safety = window.setInterval(syncCards, 2000);
 
-  /* ── Loop: the nav plate (read-only unless the bar is morphing) and
-        the gradient at ~24fps. */
+  /* ── Loop: the gradient at ~24fps (none with reduced motion). */
   let raf = 0;
   let lastPaint = 0;
   const start = performance.now();
   const loop = (now: number) => {
-    syncNav();
-    if (!reduced && now - lastPaint > 41) {
+    if (now - lastPaint > 41) {
       lastPaint = now;
       paint((now - start) / 1000);
     }
@@ -309,19 +240,14 @@ export async function startLiquid(mode: "full" | "nav" = "full"): Promise<() => 
   themeObs.observe(html, { attributes: true, attributeFilter: ["data-theme"] });
 
   syncCards();
-  syncNav();
   try {
-    [back$, front$] = await Promise.all([
-      full ? LiquidGlass.init({ root: back, glassElements: plates, defaults: SETTINGS }) : Promise.resolve(null),
-      LiquidGlass.init({ root: front, glassElements: [navPlate], defaults: SETTINGS }),
-    ]);
-    html.classList.add("lg-nav-live");
-    if (full) html.classList.add("lg-live");
+    back$ = await LiquidGlass.init({ root: back, glassElements: plates, defaults: SETTINGS });
+    html.classList.add("lg-live");
   } catch (err) {
     console.warn("[glass] WebGL glass unavailable — using CSS glass", err);
     targets.forEach((c) => c.classList.remove("lg-backed"));
   }
-  raf = requestAnimationFrame(loop);
+  if (!reduced) raf = requestAnimationFrame(loop);
 
   return () => {
     cancelAnimationFrame(raf);
@@ -332,10 +258,8 @@ export async function startLiquid(mode: "full" | "nav" = "full"): Promise<() => 
     removeEventListener("resize", onResize);
     themeObs.disconnect();
     back$?.destroy();
-    front$?.destroy();
     back.remove();
-    front.remove();
     targets.forEach((c) => c.classList.remove("lg-backed"));
-    html.classList.remove("lg-live", "lg-nav-live");
+    html.classList.remove("lg-live");
   };
 }

@@ -387,14 +387,41 @@ a:hover { text-decoration-color: currentColor; }
   backdrop-filter: none !important;
 }
 .lg-live .lg-backed::before, .lg-live .lg-backed::after { display: none !important; }
-/* The nav bar/pill is WebGL glass in every mode once it is live. */
-.lg-nav-live .nav .nav-inner, .lg-nav-live .nav.is-scrolled .nav-inner {
-  background: transparent !important;
-  border-color: transparent !important;
-  box-shadow: none !important;
-  -webkit-backdrop-filter: none !important;
-  backdrop-filter: none !important;
-}
-.lg-nav-live .nav .nav-inner::before, .lg-nav-live .nav .nav-inner::after { display: none !important; }
 /* Body copy stays readable on the warm gradient. */
 :root[data-glass="on"][data-theme="light"] { --muted: #4b4d53; --ink-2: #2c2d31; }
+
+/* ══════════════════════════════════════════════════════════
+   NAV LENS (html.lens-on, scripts/lens.ts) — the floating pill refracts
+   the live page behind it, in light, dark and glass mode alike.
+   Clear glass: a light tint keeps the labels readable over body copy;
+   the rim does the talking (specular top edge, fresnel ring, soft
+   drop shadow — the playground's specular 0.25 / fresnel 0.48 /
+   shadow 0.21·12).
+   ══════════════════════════════════════════════════════════ */
+:root {
+  --lens-fill: rgb(255 255 255 / 0.6);
+  --lens-shadow:
+    inset 0 1px 0.5px rgb(255 255 255 / 0.9),
+    inset 0 -1px 0.5px rgb(255 255 255 / 0.45),
+    inset 0 0 0 1px rgb(255 255 255 / 0.35),
+    inset 0 0 18px -4px rgb(255 255 255 / 0.55),
+    0 1px 2px rgb(20 20 20 / 0.06),
+    0 12px 28px -12px rgb(20 20 20 / 0.32);
+}
+[data-theme="dark"] {
+  --lens-fill: rgb(24 25 29 / 0.6);
+  --lens-shadow:
+    inset 0 1px 0.5px rgb(255 255 255 / 0.28),
+    inset 0 -1px 0.5px rgb(255 255 255 / 0.1),
+    inset 0 0 0 1px rgb(255 255 255 / 0.08),
+    inset 0 0 18px -4px rgb(255 255 255 / 0.1),
+    0 1px 2px rgb(0 0 0 / 0.4),
+    0 14px 30px -12px rgb(0 0 0 / 0.75);
+}
+:root.lens-on .nav.is-scrolled .nav-inner {
+  background: var(--lens-fill) !important;
+  border-color: transparent !important;
+  box-shadow: var(--lens-shadow) !important;
+  -webkit-backdrop-filter: url(#nav-lens) saturate(1.44) !important;
+  backdrop-filter: url(#nav-lens) saturate(1.44) !important;
+}
