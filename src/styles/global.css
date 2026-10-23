@@ -275,9 +275,11 @@ a:hover { text-decoration-color: currentColor; }
    · directional inner shadows + ambient occlusion for depth
    · Chromium bends the backdrop through an SVG lens on the nav pill and
      buttons (html.liquid-ok)
-   The page behind is an Apple Music-style colour field that drifts.
+   With WebGL available (html.lg-live) the cards and the nav are backed by
+   real refracting glass from @ybouane/liquidglass (src/scripts/liquid.ts)
+   over a drifting fox-orange gradient; everything below is the CSS glass
+   that remains for small controls and as the no-WebGL fallback.
    ══════════════════════════════════════════════════════════ */
-.ambient { display: none; }
 :root[data-glass="on"] {
   --radius: 22px;
   --g-fill: rgb(255 255 255 / 0.15);
@@ -308,31 +310,6 @@ a:hover { text-decoration-color: currentColor; }
     0 16px 34px -18px rgb(0 0 0 / 0.85);
   --g-blur: blur(3px) saturate(150%);
 }
-
-/* ── Apple Music-style moving colour field ─────────────────── */
-[data-glass="on"] .ambient {
-  display: block; position: fixed; inset: 0; z-index: -1; pointer-events: none; overflow: hidden;
-  opacity: 0.85;
-}
-.ambient span {
-  position: absolute; width: 70vmax; height: 70vmax; border-radius: 50%;
-  /* Soft edge lives in the gradient itself — no blur filter to redo per frame. */
-  background: radial-gradient(circle at 50% 50%, var(--c) 0%, color-mix(in srgb, var(--c) 55%, transparent) 30%, transparent 66%);
-  will-change: transform;
-}
-.ambient .a1 { --c: #ff8a4c; left: -8vmax; top: -12vmax; animation: amb-a 26s ease-in-out infinite alternate; }
-.ambient .a2 { --c: #8e7dff; right: -14vmax; top: 6vmax; animation: amb-b 32s ease-in-out infinite alternate; }
-.ambient .a3 { --c: #3fd0c0; left: 8vmax; bottom: -22vmax; animation: amb-c 29s ease-in-out infinite alternate; }
-.ambient .a4 { --c: #ffc45c; right: 6vmax; bottom: -6vmax; width: 52vmax; height: 52vmax; animation: amb-d 23s ease-in-out infinite alternate; }
-.ambient .a5 { --c: #ff6fa8; left: 30vmax; top: 18vmax; width: 46vmax; height: 46vmax; animation: amb-e 35s ease-in-out infinite alternate; opacity: 0.8; }
-[data-theme="dark"][data-glass="on"] .ambient { opacity: 0.55; }
-/* Each blob wanders its own looping path (Apple Music lyric-screen feel). */
-@keyframes amb-a { 0% { transform: translate(0, 0) scale(1); } 33% { transform: translate(26vmax, 10vmax) scale(1.2); } 66% { transform: translate(10vmax, 26vmax) scale(0.9); } 100% { transform: translate(32vmax, 18vmax) scale(1.1); } }
-@keyframes amb-b { 0% { transform: translate(0, 0) scale(1); } 33% { transform: translate(-22vmax, 20vmax) scale(0.85); } 66% { transform: translate(-34vmax, -4vmax) scale(1.15); } 100% { transform: translate(-12vmax, 26vmax) scale(1); } }
-@keyframes amb-c { 0% { transform: translate(0, 0) scale(1); } 50% { transform: translate(28vmax, -22vmax) scale(1.25); } 100% { transform: translate(-8vmax, -30vmax) scale(0.95); } }
-@keyframes amb-d { 0% { transform: translate(0, 0) scale(1); } 50% { transform: translate(-26vmax, -14vmax) scale(1.2); } 100% { transform: translate(-10vmax, -28vmax) scale(0.9); } }
-@keyframes amb-e { 0% { transform: translate(0, 0) scale(1); } 50% { transform: translate(-30vmax, 12vmax) scale(1.35); } 100% { transform: translate(14vmax, -10vmax) scale(1.1); } }
-@media (prefers-reduced-motion: reduce) { .ambient, .ambient span { animation: none !important; } }
 
 /* ── Glass surfaces ────────────────────────────────────────── */
 [data-glass="on"] :is(.card, .btn-ghost, .icon-btn, .status, .menu-panel) {
@@ -393,3 +370,31 @@ a:hover { text-decoration-color: currentColor; }
 :root.liquid-ok[data-glass="on"] .btn-ghost {
   backdrop-filter: url(#liquid-lens) blur(2px) saturate(170%);
 }
+
+/* ── WebGL glass (html.lg-live) ────────────────────────────── */
+/* The glass stage spans the whole document (inset:0 against <html>). */
+:root[data-glass="on"] { position: relative; }
+/* Cards that can be glass-backed use the reference corner radius (40). */
+[data-glass="on"] :is(.sheet, .proj, .cert, .skill-table, .gh, .stat, .cta) { border-radius: 40px; }
+[data-glass="on"] .proj .media { border-radius: 0; }
+/* Elements with a refracting plate under them go fully transparent so
+   the shader output shows and their text sits crisp on top. */
+.lg-live .lg-backed {
+  background: transparent !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+.lg-live .lg-backed::before, .lg-live .lg-backed::after { display: none !important; }
+/* The nav bar/pill is WebGL glass in every mode once it is live. */
+.lg-nav-live .nav .nav-inner, .lg-nav-live .nav.is-scrolled .nav-inner {
+  background: transparent !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+.lg-nav-live .nav .nav-inner::before, .lg-nav-live .nav .nav-inner::after { display: none !important; }
+/* Body copy stays readable on the warm gradient. */
+:root[data-glass="on"][data-theme="light"] { --muted: #4b4d53; --ink-2: #2c2d31; }

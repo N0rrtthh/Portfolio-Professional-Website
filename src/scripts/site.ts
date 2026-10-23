@@ -110,9 +110,38 @@ document.querySelectorAll<HTMLButtonElement>("[data-theme-toggle]").forEach((btn
 });
 
 /* ── Liquid glass ─────────────────────────────────────────── */
+/* Real refracting glass (WebGL). The nav bar always gets it ("nav" mode);
+   glass mode upgrades the whole page ("full"). The module is fetched after
+   the intro has settled, so it never competes with the first paint. */
+let stopLiquid: (() => void) | null = null;
+let liquidMode: "full" | "nav" | null = null;
+let liquidBusy = false;
+let liquidAllowed = false;
+async function syncLiquid(on: boolean) {
+  const want: "full" | "nav" = on ? "full" : "nav";
+  if (!liquidAllowed || liquidBusy || liquidMode === want) return;
+  liquidBusy = true;
+  try {
+    stopLiquid?.();
+    stopLiquid = null;
+    liquidMode = null;
+    const { startLiquid } = await import("./liquid");
+    stopLiquid = await startLiquid(want);
+    liquidMode = want;
+  } catch (err) {
+    console.warn("[glass] could not load WebGL glass", err);
+  } finally {
+    liquidBusy = false;
+  }
+  // The toggle may have flipped while we were loading.
+  const now: "full" | "nav" = root.dataset.glass === "on" ? "full" : "nav";
+  if (liquidMode && liquidMode !== now) void syncLiquid(now === "full");
+}
+
 function applyGlass(on: boolean) {
   if (on) root.dataset.glass = "on";
   else delete root.dataset.glass;
+  void syncLiquid(on);
   try {
     localStorage.setItem("eq-glass", on ? "on" : "off");
   } catch {
@@ -124,6 +153,29 @@ function applyGlass(on: boolean) {
   });
 }
 applyGlass(root.dataset.glass === "on");
+
+/* Start the WebGL glass without ever blocking the load: compiling its
+   shaders is one long task (~100ms+ on phones). The nav-only glass waits for
+   the visitor's first interaction — until then the nav shows the CSS frosted
+   glass, which looks nearly identical. Glass mode (opted in) loads on idle. */
+{
+  const go = () => {
+    if (liquidAllowed) return;
+    liquidAllowed = true;
+    for (const t of EVENTS) removeEventListener(t, go, true);
+    void syncLiquid(root.dataset.glass === "on");
+  };
+  const EVENTS = ["pointerdown", "pointermove", "wheel", "touchstart", "keydown", "scroll"] as const;
+  const arm = () => {
+    for (const t of EVENTS) addEventListener(t, go, { capture: true, passive: true, once: true });
+  };
+  const ric = (window as Window & { requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => number }).requestIdleCallback;
+  // Armed after the intro so the loader's own animation is never interrupted.
+  setTimeout(() => {
+    if (root.dataset.glass === "on") ric ? ric(go, { timeout: 2500 }) : go();
+    else arm();
+  }, 1600);
+}
 
 document.querySelectorAll<HTMLButtonElement>("[data-glass-toggle]").forEach((btn) => {
   btn.addEventListener("click", () => revealFrom(btn, () => applyGlass(root.dataset.glass !== "on")));
@@ -222,7 +274,11 @@ if (matchMedia("(hover: hover) and (pointer: fine)").matches && !matchMedia("(pr
       s.x += (s.tx - s.x) * k;
       s.y += (s.ty - s.y) * k;
       s.l += (s.tl - s.l) * k;
-      card.style.transform = `rotateX(${s.y.toFixed(3)}deg) rotateY(${s.x.toFixed(3)}deg) translateY(${s.l.toFixed(2)}px)`;
+      // Over WebGL glass the plate is pinned to the card's layout box, so
+      // the card itself stays put; the glare and image zoom still respond.
+      card.style.transform = rootEl.classList.contains("lg-live")
+        ? ""
+        : `rotateX(${s.y.toFixed(3)}deg) rotateY(${s.x.toFixed(3)}deg) translateY(${s.l.toFixed(2)}px)`;
       if (img) {
         img.style.setProperty("--px", `${(-s.x * 1.6).toFixed(2)}px`);
         img.style.setProperty("--py", `${(s.y * 1.6).toFixed(2)}px`);
