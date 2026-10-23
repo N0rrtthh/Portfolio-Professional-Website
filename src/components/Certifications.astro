@@ -16,7 +16,7 @@ const more = certifications.filter((c) => !c.featured);
 <section id="certifications" class="section container" aria-labelledby="certs-title">
   <div class="section-head reveal-head">
     <h2 id="certs-title" class="section-title reveal-title">Certifications</h2>
-    <p class="section-lede reveal" style="--i:1">{certificationTotal} credentials from Cisco, IBM SkillsBuild and DICT — the most relevant first. Each links to its Credly verification.</p>
+    <p class="section-lede reveal" style="--i:1">{certificationTotal} credentials from Cisco, IBM SkillsBuild, DICT and others — the most relevant first. Each one links to its Credly verification or certificate.</p>
   </div>
 
   <ul class="featured" role="list">
@@ -30,7 +30,7 @@ const more = certifications.filter((c) => !c.featured);
             </span>
             <span class="cert-title">{c.title}</span>
             <span class="cert-meta">{c.issuer} · {c.year}</span>
-            <span class="cert-verify">Verify on Credly <Icon name="arrowUpRight" size={14} /></span>
+            <span class="cert-verify">{c.verify === "Credly" ? "Verify on Credly" : "View certificate"} <Icon name="arrowUpRight" size={14} /></span>
             <span class="sr-only">(opens in new tab)</span>
           </a>
         </li>
@@ -56,7 +56,7 @@ const more = certifications.filter((c) => !c.featured);
                 <span class="cert-meta">{c.issuer}</span>
               </span>
               <Icon name="arrowUpRight" size={14} />
-              <span class="sr-only">Verify on Credly (opens in new tab)</span>
+              <span class="sr-only">{c.verify === "Credly" ? "Verify on Credly" : "View certificate"} (opens in new tab)</span>
             </a>
           </li>
         );

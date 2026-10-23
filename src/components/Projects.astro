@@ -7,12 +7,14 @@ const list = projects.filter((p) => p.published);
 <section id="projects" class="section container" aria-labelledby="projects-title">
   <div class="section-head reveal-head">
     <h2 id="projects-title" class="section-title reveal-title">Selected projects</h2>
-    <p class="section-lede reveal" style="--i:1">Four builds that show how I work — what the problem was, what I did, and what shipped. Open a case study for the details.</p>
+    <p class="section-lede reveal" style="--i:1">Four builds that show how I work — what the problem was, what I did, and what shipped. Open any project for the full story.</p>
   </div>
 
   <ul class="grid" role="list">
     {list.map((p, i) => (
-      <li class="proj card reveal" style={`--i:${i % 2}`}>
+      <li class="proj-slot reveal" style={`--i:${i % 2}`}>
+      <article class="proj card" data-tilt>
+        <span class="proj-glare" aria-hidden="true"></span>
         <ProjectMedia image={p.image} phoneImage={p.phoneImage} alt={`${p.name} screenshot`} />
         <div class="proj-body">
           <div class="proj-top">
@@ -31,8 +33,8 @@ const list = projects.filter((p) => p.published);
             {p.tech.map((t) => <li class="tag">{t}</li>)}
           </ul>
           <div class="proj-actions">
-            <button class="btn btn-ghost btn-sm" type="button" command="show-modal" commandfor={`case-${p.slug}`}>
-              Case study <Icon name="arrowRight" />
+            <button class="btn btn-ghost btn-sm view-btn" type="button" command="show-modal" commandfor={`case-${p.slug}`} aria-label={`View ${p.name} details`}>
+              View <Icon name="arrowRight" />
             </button>
             {p.github?.map((g) => (
               <a class="text-link small" href={g.href} target="_blank" rel="noopener noreferrer">
@@ -47,6 +49,7 @@ const list = projects.filter((p) => p.published);
             {p.note && !p.github && <span class="proj-note"><Icon name="lock" size={14} /> {p.note}</span>}
           </div>
         </div>
+      </article>
       </li>
     ))}
   </ul>
@@ -80,7 +83,7 @@ const list = projects.filter((p) => p.published);
             <p class="proj-kind">{p.kind} · <span class="num">{p.year}</span></p>
             <h3 id={`case-${p.slug}-title`} class="case-title">{p.name}</h3>
           </div>
-          <button class="icon-btn" type="button" command="close" commandfor={`case-${p.slug}`} aria-label={`Close ${p.name} case study`} autofocus>
+          <button class="icon-btn" type="button" command="close" commandfor={`case-${p.slug}`} aria-label={`Close ${p.name} details`} autofocus>
             <Icon name="x" />
           </button>
         </header>
@@ -155,9 +158,39 @@ const list = projects.filter((p) => p.published);
 
 <style>
   .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.25rem; padding: 0; list-style: none; }
-  .proj { overflow: hidden; display: flex; flex-direction: column; transition: border-color 0.2s ease, box-shadow 0.25s ease, transform 0.25s var(--ease-out); }
+  /* ── Hover: tilt toward the cursor, glare follows it, the shot zooms ──
+     The tilt itself is written per frame by site.ts (lerped, so it glides);
+     CSS owns everything that only eases in and out. */
+  .proj-slot { display: flex; perspective: 1100px; }
+  .proj {
+    position: relative; overflow: hidden; display: flex; flex-direction: column; width: 100%;
+    transform-style: preserve-3d; will-change: transform;
+    transition: border-color 0.35s ease, box-shadow 0.45s var(--ease-out);
+  }
+  .proj-glare {
+    position: absolute; inset: 0; z-index: 3; pointer-events: none; opacity: 0;
+    background: radial-gradient(420px circle at var(--gx, 50%) var(--gy, 0%), rgb(255 255 255 / 0.22), transparent 60%);
+    transition: opacity 0.4s ease;
+    mix-blend-mode: soft-light;
+  }
+  .proj :global(.media img) { transition: transform 0.9s var(--ease-out); transform-origin: 50% 30%; }
+  .proj :global(.media-phone) { transition: transform 0.9s var(--ease-out); }
+  .view-btn :global(svg) { transition: transform 0.35s var(--ease-out); }
+  .proj-name { transition: color 0.3s ease; }
   @media (hover: hover) {
-    .proj:hover { border-color: var(--line-strong); box-shadow: var(--shadow); transform: translateY(-2px); }
+    .proj:hover {
+      border-color: color-mix(in srgb, var(--accent) 45%, var(--line));
+      box-shadow: 0 2px 4px rgb(20 20 20 / 0.04), 0 30px 60px -28px color-mix(in srgb, var(--accent) 45%, rgb(20 20 20 / 0.5));
+    }
+    .proj:hover .proj-glare { opacity: 1; }
+    .proj:hover :global(.media img) { transform: scale(1.06) translate(var(--px, 0px), var(--py, 0px)); }
+    .proj:hover :global(.media-phone) { transform: rotate(0deg) translateY(-8%) scale(1.04); }
+    .proj:hover .view-btn { border-color: var(--ink); }
+    .proj:hover .view-btn :global(svg) { transform: translateX(3px); }
+    .proj:hover .proj-name { color: var(--accent); }
+    /* Without the script (or before it boots) a plain lift stands in. */
+    :global(html:not(.tilt-on)) .proj { transition: border-color 0.35s ease, box-shadow 0.45s var(--ease-out), transform 0.45s var(--ease-out); }
+    :global(html:not(.tilt-on)) .proj:hover { transform: translateY(-4px); }
   }
   .proj-body { padding: 1.15rem 1.25rem 1.2rem; display: flex; flex-direction: column; gap: 0.65rem; flex: 1; }
   .proj-top { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; }

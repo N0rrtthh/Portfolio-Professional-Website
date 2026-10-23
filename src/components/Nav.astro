@@ -13,7 +13,7 @@ const links = [
 ];
 ---
 <header class="nav">
-  <div class="container nav-inner">
+  <div class="nav-inner">
     <a class="brand" href="#top" aria-label={`${profile.name} — back to top`}>
       <Image src={fox} alt="" width={34} height={34} densities={[1, 2]} class="brand-mark" loading="eager" />
       <span class="brand-name">{profile.name}</span>
@@ -48,17 +48,8 @@ const links = [
 </header>
 
 <style>
-  .nav {
-    position: sticky; top: 0; z-index: 50;
-    background: color-mix(in srgb, var(--bg) 92%, transparent);
-    border-bottom: 1px solid transparent;
-    transition: border-color 0.2s ease, background-color 0.2s ease;
-  }
-  @supports (backdrop-filter: blur(1px)) {
-    .nav { background: color-mix(in srgb, var(--bg) 80%, transparent); backdrop-filter: saturate(1.4) blur(10px); }
-  }
-  .nav:global(.is-scrolled) { border-bottom-color: var(--line); }
-  .nav-inner { height: var(--nav-h); display: flex; align-items: center; gap: 1rem; }
+  .nav { position: sticky; top: 0; z-index: 50; }
+  .nav-inner { display: flex; align-items: center; gap: 1rem; }
 
   .brand { display: inline-flex; align-items: center; gap: 0.6rem; text-decoration: none; margin-right: auto; min-height: 44px; }
   .brand :global(.brand-mark) { width: 34px; height: 34px; object-fit: contain; transition: transform 0.35s var(--ease-out); }

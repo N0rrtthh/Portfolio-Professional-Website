@@ -76,11 +76,10 @@ const personLd = {
           d.dataset.theme = t;
           if (localStorage.getItem("eq-glass") === "on") d.dataset.glass = "on";
         } catch (e) {}
-        if (!matchMedia("(prefers-reduced-motion: reduce)").matches) {
-          d.classList.add("motion-ok");
-          // If the page script never boots, never leave content hidden.
-          setTimeout(function () { if (!window.__eqReady) d.classList.remove("motion-ok"); }, 3000);
-        }
+        // Reduced motion still gets gentle fades ("motion-soft"), not nothing.
+        d.classList.add(matchMedia("(prefers-reduced-motion: reduce)").matches ? "motion-soft" : "motion-ok");
+        // If the page script never boots, never leave content hidden.
+        setTimeout(function () { if (!window.__eqReady) d.classList.remove("motion-ok", "motion-soft"); }, 3000);
         var b = navigator.userAgentData && navigator.userAgentData.brands;
         if (b && b.some(function (x) { return x.brand === "Chromium"; })) d.classList.add("liquid-ok");
       })();
@@ -89,13 +88,13 @@ const personLd = {
   </head>
   <body>
     {loader && <Loader />}
-    <div class="ambient" aria-hidden="true"><span class="a1"></span><span class="a2"></span><span class="a3"></span><span class="a4"></span></div>
+    <div class="ambient" aria-hidden="true"><span class="a1"></span><span class="a2"></span><span class="a3"></span><span class="a4"></span><span class="a5"></span></div>
     <!-- Lens for liquid-glass mode (Chromium bends the backdrop through it). -->
     <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
       <filter id="liquid-lens" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB">
-        <feTurbulence type="fractalNoise" baseFrequency="0.012 0.018" numOctaves="2" seed="7" result="noise" />
-        <feGaussianBlur in="noise" stdDeviation="2.2" result="soft" />
-        <feDisplacementMap in="SourceGraphic" in2="soft" scale="26" xChannelSelector="R" yChannelSelector="G" />
+        <feTurbulence type="fractalNoise" baseFrequency="0.008 0.012" numOctaves="1" seed="11" result="noise" />
+        <feGaussianBlur in="noise" stdDeviation="1.5" result="soft" />
+        <feDisplacementMap in="SourceGraphic" in2="soft" scale="14" xChannelSelector="R" yChannelSelector="G" />
       </filter>
     </svg>
     <a class="skip-link" href="#main">Skip to content</a>

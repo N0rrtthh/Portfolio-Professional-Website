@@ -277,27 +277,41 @@ export const otherWork: { name: string; what: string; tech: string; href?: strin
   { name: "Neon Smash", what: "Arcade game", tech: "Python · Pygame", href: "https://github.com/N0rrtthh/Neon-Smash" },
 ];
 
-export type Cert = { title: string; issuer: string; year: string; href: string; featured?: boolean };
+export type Cert = { title: string; issuer: string; year: string; href: string; verify: "Credly" | "Certificate"; featured?: boolean };
 
-/* featured: true → shown up front; the rest sit behind "Show all". */
+/* All 29, one entry per credential. featured: true → shown up front; the
+   rest sit behind "Show more". `verify` names what the link opens. */
 export const certifications: Cert[] = [
-  { title: "AI Fundamentals: Foundations for Understanding AI", issuer: "Cisco · IBM SkillsBuild", year: "2026", href: "https://www.credly.com/badges/c701bfe8-fd85-476f-ac93-e8d13045da5a/public_url", featured: true },
-  { title: "Enterprise Design Thinking Practitioner", issuer: "IBM SkillsBuild", year: "2026", href: "https://www.credly.com/badges/0cfc014b-0986-48e3-892c-54c639a9ab0e/public_url", featured: true },
-  { title: "Ethical Hacker", issuer: "Cisco Networking Academy", year: "2026", href: "https://www.credly.com/badges/a4a574a4-2c88-43c3-97fa-6d867e815055/public_url", featured: true },
-  { title: "JavaScript Essentials 1 & 2", issuer: "Cisco Networking Academy", year: "2026", href: "https://www.credly.com/badges/f103bf83-5b0e-41fe-a99b-0d79489d62e3/public_url", featured: true },
-  { title: "AI Fundamentals: Language and Vision in AI", issuer: "Cisco · IBM SkillsBuild", year: "2026", href: "https://www.credly.com/badges/0ddb7bbf-1c2d-4378-bbc5-c5d373f05d30/public_url" },
-  { title: "Python Essentials 1 & 2", issuer: "Cisco Networking Academy · OpenEDG", year: "2026", href: "https://www.credly.com/badges/c7a050c7-62e9-4220-84c2-88fbc1afdf85/public_url" },
-  { title: "Data Science Essentials with Python", issuer: "Cisco Networking Academy", year: "2026", href: "https://www.credly.com/badges/664f0975-7c01-47fc-8a96-43bba8690442/public_url" },
-  { title: "Data Analytics Essentials", issuer: "Cisco Networking Academy", year: "2026", href: "https://www.credly.com/badges/df779424-ba5e-4387-8335-44607c053587/public_url" },
-  { title: "Introduction to Cybersecurity", issuer: "Cisco Networking Academy", year: "2026", href: "https://www.credly.com/badges/f53ca562-b7a5-4723-817b-d348547b1ab2/public_url" },
-  { title: "C++ Essentials 1, 2 & C++ Advanced", issuer: "Cisco Networking Academy · C++ Institute", year: "2026", href: "https://www.credly.com/badges/d5e9426a-1029-4ed6-b1fd-51f8a0c6a41c/public_url" },
-  { title: "HTML Essentials", issuer: "Cisco Networking Academy", year: "2026", href: "https://www.credly.com/badges/7670e2fe-10c0-45c8-a680-cde94bf45d7f/public_url" },
-  { title: "CSS Essentials", issuer: "Cisco Networking Academy", year: "2026", href: "https://www.credly.com/badges/4f7f4a03-37d9-4b2a-96c0-09acdf694362/public_url" },
-  { title: "Introduction to Modern AI", issuer: "Cisco Networking Academy", year: "2026", href: "https://www.credly.com/badges/d7387b6f-148b-421d-9a08-46560784b0cb/public_url" },
-  { title: "Introduction to IoT and Digital Transformation", issuer: "Cisco Networking Academy", year: "2026", href: "https://www.credly.com/badges/85504c74-946a-46eb-a293-028044350480/public_url" },
-  { title: "Operating Systems Support", issuer: "Cisco Networking Academy", year: "2026", href: "https://www.credly.com/badges/f39b2e79-5f07-4ea0-aeb3-e574befbb40a/public_url" },
-  { title: "Hardware and Upgrade Support", issuer: "Cisco Networking Academy", year: "2026", href: "https://www.credly.com/badges/1050e0bf-c6cb-4c56-baf1-1ec43dc4d50b/public_url" },
+  { title: "AI Fundamentals: Foundations for Understanding AI", issuer: "Cisco · IBM SkillsBuild · DICT-ITU · DICT ILCDB", year: "2026", href: "https://www.credly.com/badges/c701bfe8-fd85-476f-ac93-e8d13045da5a/public_url", verify: "Credly", featured: true },
+  { title: "Enterprise Design Thinking Practitioner", issuer: "IBM SkillsBuild", year: "2026", href: "https://www.credly.com/badges/0cfc014b-0986-48e3-892c-54c639a9ab0e/public_url", verify: "Credly", featured: true },
+  { title: "Ethical Hacker", issuer: "Cisco · DICT-ITU", year: "2026", href: "https://www.credly.com/badges/a4a574a4-2c88-43c3-97fa-6d867e815055/public_url", verify: "Credly", featured: true },
+  { title: "JavaScript Essentials 2", issuer: "Cisco · DICT-ITU", year: "2026", href: "https://www.credly.com/badges/f103bf83-5b0e-41fe-a99b-0d79489d62e3/public_url", verify: "Credly", featured: true },
+  { title: "AI Fundamentals: Language and Vision in AI", issuer: "Cisco · IBM SkillsBuild · DICT-ITU · DICT ILCDB", year: "2026", href: "https://www.credly.com/badges/0ddb7bbf-1c2d-4378-bbc5-c5d373f05d30/public_url", verify: "Credly" },
+  { title: "Introduction to Modern AI", issuer: "Cisco · DICT-ITU", year: "2026", href: "https://www.credly.com/badges/d7387b6f-148b-421d-9a08-46560784b0cb/public_url", verify: "Credly" },
+  { title: "Apply AI: Update Your Resume", issuer: "Cisco · DICT-ITU · DICT ILCDB", year: "2026", href: "https://www.credly.com/badges/e0cc3f70-ed75-40fb-af86-7f20d0348efa/public_url", verify: "Credly" },
+  { title: "Data Science Essentials with Python", issuer: "Cisco · DICT-ITU", year: "2026", href: "https://www.credly.com/badges/664f0975-7c01-47fc-8a96-43bba8690442/public_url", verify: "Credly" },
+  { title: "Data Analytics Essentials", issuer: "Cisco · DICT-ITU", year: "2026", href: "https://www.credly.com/badges/df779424-ba5e-4387-8335-44607c053587/public_url", verify: "Credly" },
+  { title: "Introduction to Data Science", issuer: "Cisco · DICT-ITU", year: "2026", href: "https://www.credly.com/badges/3b678f36-573e-40f7-b63e-607209028634/public_url", verify: "Credly" },
+  { title: "Introduction to Cybersecurity", issuer: "Cisco · DICT-ITU", year: "2026", href: "https://www.credly.com/badges/f53ca562-b7a5-4723-817b-d348547b1ab2/public_url", verify: "Credly" },
+  { title: "Python Essentials 1", issuer: "Cisco · DICT-ITU", year: "2026", href: "https://www.credly.com/badges/fdcaaeb7-c1ee-4b6b-8771-89d6f2e4da00/public_url", verify: "Credly" },
+  { title: "Digital Safety and Security Awareness", issuer: "Cisco · DICT-ITU", year: "2026", href: "https://www.credly.com/badges/4f4c6e8e-1659-4ea3-aa28-df59e2235a10/public_url", verify: "Credly" },
+  { title: "Python Essentials 2", issuer: "Cisco · DICT-ITU", year: "2026", href: "https://www.credly.com/badges/c7a050c7-62e9-4220-84c2-88fbc1afdf85/public_url", verify: "Credly" },
+  { title: "C++ Essentials 1", issuer: "Cisco · DICT-ITU", year: "2026", href: "https://www.credly.com/badges/eed4b2be-12c7-4a58-b480-a13e9277273c/public_url", verify: "Credly" },
+  { title: "C++ Essentials 2", issuer: "Cisco · DICT-ITU", year: "2026", href: "https://www.credly.com/badges/58418359-fd28-4e2f-a0eb-37b9d9f5e978/public_url", verify: "Credly" },
+  { title: "C++ Advanced", issuer: "Cisco · DICT-ITU", year: "2026", href: "https://www.credly.com/badges/d5e9426a-1029-4ed6-b1fd-51f8a0c6a41c/public_url", verify: "Credly" },
+  { title: "JavaScript Essentials 1", issuer: "Cisco · DICT-ITU", year: "2026", href: "https://www.credly.com/badges/c4666247-e181-4ddd-b471-edae5c987e62/public_url", verify: "Credly" },
+  { title: "HTML Essentials", issuer: "Cisco · DICT-ITU", year: "2026", href: "https://www.credly.com/badges/7670e2fe-10c0-45c8-a680-cde94bf45d7f/public_url", verify: "Credly" },
+  { title: "CSS Essentials", issuer: "Cisco · DICT-ITU", year: "2026", href: "https://www.credly.com/badges/4f7f4a03-37d9-4b2a-96c0-09acdf694362/public_url", verify: "Credly" },
+  { title: "Introduction to IoT and Digital Transformation", issuer: "Cisco · DICT-ITU", year: "2026", href: "https://www.credly.com/badges/85504c74-946a-46eb-a293-028044350480/public_url", verify: "Credly" },
+  { title: "Hardware and Upgrade Support", issuer: "Cisco · DICT-ITU", year: "2026", href: "https://www.credly.com/badges/1050e0bf-c6cb-4c56-baf1-1ec43dc4d50b/public_url", verify: "Credly" },
+  { title: "Operating Systems Support", issuer: "Cisco · DICT-ITU", year: "2026", href: "https://www.credly.com/badges/f39b2e79-5f07-4ea0-aeb3-e574befbb40a/public_url", verify: "Credly" },
+  { title: "Discovering Entrepreneurship", issuer: "Cisco · DICT-ITU", year: "2026", href: "https://www.credly.com/badges/8c470820-13ea-4385-8e62-ff40ebcd594f/public_url", verify: "Credly" },
+  { title: "Data Analytics: Your Game-Changer for 2025", issuer: "UniAthena", year: "2025", href: "https://pdfhost.io/v/UB2w3V3fDH_Data_Analytics__Your_Game-Changer_for_2025", verify: "Certificate" },
+  { title: "MS Excel: For Real World Office Productivity", issuer: "DataSense Analytics", year: "2026", href: "https://pdfhost.io/v/FMZWnrgzxw_MS_Excel__For_Real_World_Office_Productivity", verify: "Certificate" },
+  { title: "Cybersecurity for SMEs: Protecting Your Business From Cyber Threats", issuer: "DICT Caraga", year: "2025", href: "https://pdfhost.io/v/7bUsJJLEpN_Cybersecurity_for_Small_and_Medium_Enterprises__SMEs___Protecting_Your_Business_From_Cyber_Threats", verify: "Certificate" },
+  { title: "Digital Marketing for Startups and MSMEs using AI", issuer: "DICT Caraga", year: "2025", href: "https://pdfhost.io/v/YJa5arskM8_Digital_Marketing_for_Startups_and_MSMEs_using_AI", verify: "Certificate" },
+  { title: "Module 4 - Object Oriented Programming", issuer: "CvSU × Universiti Teknologi MARA", year: "2025", href: "https://pdfhost.io/v/PwVgsvxpHE_Module_4_-_Object_Oriented_Programming", verify: "Certificate" },
 ];
 
 /** Total credential count mentioned in the certifications block. */
-export const certificationTotal = 29;
+export const certificationTotal = certifications.length;

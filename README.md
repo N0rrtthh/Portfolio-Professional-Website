@@ -47,9 +47,11 @@ public/resume/            ← downloadable résumé PDF
 
 ## Look & motion
 
-- Section order: Hero → Selected projects → Certifications → Skills → About → GitHub activity → Contact.
-- Sections reveal as they scroll in (heading wipe, hairline draw, staggered content). Disabled automatically for reduced-motion users and without JavaScript.
-- **Liquid glass** (droplet button in the nav): translucent, blurred surfaces over a soft colour field; Chromium browsers also refract the nav and buttons through an SVG lens. Remembered per visitor, off by default.
-- Light/dark (moon/sun button) and glass both switch with a circular reveal from the button.
+- Section order: Hero → Selected projects → Certifications (all 29) → Skills → About → GitHub activity → Contact.
+- Every section opens like the hero: heading rises out of a mask, an accent hairline draws across, content lifts in on a stagger. Reduced-motion visitors get gentle fades instead; without JavaScript everything is simply visible.
+- Project cards tilt toward the cursor, a glare follows it, and the screenshot zooms with slight parallax (mouse/trackpad only).
+- Nav: a full-width square bar at the top that morphs into a floating pill once you scroll (all modes).
+- **Liquid glass** (droplet button): iOS-style *clear* glass — ≤3px backdrop blur only on floating controls, a 1px specular rim, sharp diagonal reflections and directional inner shadows — over an Apple Music-style moving colour field. Chromium also bends the backdrop of the nav pill and buttons through an SVG lens. Remembered per visitor, off by default.
+- Light/dark (moon/sun) and glass both switch with a circular reveal from the button.
 
 Fonts: Geist & Geist Mono (Vercel) — SIL Open Font License, see `public/fonts/`.

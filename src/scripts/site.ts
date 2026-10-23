@@ -51,7 +51,7 @@ if (loader) {
 /* ── Section reveals ──────────────────────────────────────── */
 /* Each .reveal / .reveal-title / .reveal-head gets .is-in once ~15% of
    it is on screen, and is then left alone (no replay on scroll-back). */
-if (rootEl.classList.contains("motion-ok") && "IntersectionObserver" in window) {
+if ((rootEl.classList.contains("motion-ok") || rootEl.classList.contains("motion-soft")) && "IntersectionObserver" in window) {
   const io = new IntersectionObserver(
     (entries) => {
       for (const entry of entries) {
@@ -200,3 +200,64 @@ document.addEventListener("click", (e) => {
   const menu = document.querySelector<HTMLDetailsElement>("details.menu[open]");
   if (menu && !menu.contains(e.target as Node)) menu.removeAttribute("open");
 });
+
+/* ── Project cards: cursor tilt + glare ───────────────────── */
+/* Fine pointers only, and only when motion is welcome. Targets are set on
+   pointermove; one rAF loop eases toward them (exponential smoothing, so
+   it glides instead of snapping) and parks itself once the card is flat.
+   Each element gets its own style write — no parent CSS variables driving
+   child transforms. */
+if (matchMedia("(hover: hover) and (pointer: fine)").matches && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
+  rootEl.classList.add("tilt-on");
+  const MAX = 5; // degrees
+  document.querySelectorAll<HTMLElement>("[data-tilt]").forEach((card) => {
+    const glare = card.querySelector<HTMLElement>(".proj-glare");
+    const img = card.querySelector<HTMLElement>(".media img");
+    const s = { tx: 0, ty: 0, x: 0, y: 0, tl: 0, l: 0, raf: 0, last: 0 };
+
+    const frame = (now: number) => {
+      const dt = s.last ? Math.min((now - s.last) / 1000, 1 / 30) : 1 / 60;
+      s.last = now;
+      const k = 1 - Math.exp(-dt / 0.12);
+      s.x += (s.tx - s.x) * k;
+      s.y += (s.ty - s.y) * k;
+      s.l += (s.tl - s.l) * k;
+      card.style.transform = `rotateX(${s.y.toFixed(3)}deg) rotateY(${s.x.toFixed(3)}deg) translateY(${s.l.toFixed(2)}px)`;
+      if (img) {
+        img.style.setProperty("--px", `${(-s.x * 1.6).toFixed(2)}px`);
+        img.style.setProperty("--py", `${(s.y * 1.6).toFixed(2)}px`);
+      }
+      const settled = Math.abs(s.tx - s.x) < 0.01 && Math.abs(s.ty - s.y) < 0.01 && Math.abs(s.tl - s.l) < 0.02;
+      if (settled && s.tx === 0 && s.ty === 0 && s.tl === 0) {
+        card.style.transform = "";
+        s.raf = 0;
+        s.last = 0;
+        return;
+      }
+      s.raf = requestAnimationFrame(frame);
+    };
+    const kick = () => {
+      if (!s.raf) s.raf = requestAnimationFrame(frame);
+    };
+
+    card.addEventListener("pointermove", (e) => {
+      const r = card.getBoundingClientRect();
+      const px = (e.clientX - r.left) / r.width;
+      const py = (e.clientY - r.top) / r.height;
+      s.tx = (px - 0.5) * 2 * MAX;
+      s.ty = -(py - 0.5) * 2 * MAX;
+      s.tl = -6;
+      if (glare) {
+        glare.style.setProperty("--gx", `${(px * 100).toFixed(1)}%`);
+        glare.style.setProperty("--gy", `${(py * 100).toFixed(1)}%`);
+      }
+      kick();
+    });
+    card.addEventListener("pointerleave", () => {
+      s.tx = 0;
+      s.ty = 0;
+      s.tl = 0;
+      kick();
+    });
+  });
+}

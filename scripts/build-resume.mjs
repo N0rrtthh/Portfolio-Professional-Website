@@ -59,9 +59,10 @@ const resumeProjects = [
   },
 ];
 
-const certList = certifications
-  .filter((c) => c.featured || /Python|Language and Vision/.test(c.title))
-  .slice(0, 6);
+const certList = [
+  ...certifications.filter((c) => c.featured),
+  ...certifications.filter((c) => ["AI Fundamentals: Language and Vision in AI", "Python Essentials 2"].includes(c.title)),
+].slice(0, 6);
 
 const contact = [
   profile.location.replace(", Philippines", ", PH"),
@@ -144,7 +145,7 @@ const html = `<!doctype html>
     .join("\n  ")}
 
   <h2>Certifications</h2>
-  <ul>${certList.map((c) => `<li>${esc(c.title)} — ${esc(c.issuer.replace("Cisco Networking Academy", "Cisco").replace(" · OpenEDG", ""))} (${esc(c.year)})</li>`).join("")}</ul>
+  <ul>${certList.map((c) => `<li>${esc(c.title)} — ${esc(c.issuer.split(" · ").slice(0, 2).join(" · "))} (${esc(c.year)})</li>`).join("")}</ul>
 
   <h2>Leadership &amp; Activities</h2>
   <ul>${leadership.map((l) => `<li><b>${esc(l.role)}</b>, ${esc(l.org.replace(", CvSU Chapter", "").replace(", CvSU", ""))}, CvSU (${esc(l.period)})</li>`).join("")}</ul>
