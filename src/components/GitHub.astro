@@ -1,0 +1,153 @@
+---
+import Icon from "./Icon.astro";
+import data from "../data/github.json";
+import { profile } from "../data/site";
+
+/* Built from src/data/github.json (scripts/fetch-github.mjs, refreshed on
+   every build). Rendered as static HTML — no client JS, no API calls. */
+type Day = [string, number, number];
+const days = data.days as Day[];
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+const dow = (d: string) => new Date(`${d}T00:00:00Z`).getUTCDay();
+
+// Pad the first week so rows line up Sunday → Saturday.
+const lead = days.length ? dow(days[0][0]) : 0;
+const cells: (Day | null)[] = [...Array(lead).fill(null), ...days];
+const weeks = Math.ceil(cells.length / 7);
+
+// Month label at the first column whose first real day starts a new month.
+const labels: { col: number; text: string }[] = [];
+let lastMonth = -1;
+for (let w = 0; w < weeks; w++) {
+  const first = cells.slice(w * 7, w * 7 + 7).find(Boolean) as Day | undefined;
+  if (!first) continue;
+  const m = new Date(`${first[0]}T00:00:00Z`).getUTCMonth();
+  if (m !== lastMonth) {
+    if (w < weeks - 2) labels.push({ col: w + 1, text: MONTHS[m] });
+    lastMonth = m;
+  }
+}
+
+const fmt = (d: string) => new Date(`${d}T00:00:00Z`).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" });
+const years = Object.entries(data.yearTotals as Record<string, number>).map(([y, n]) => ({ y, n }));
+const busiest = years.reduce((a, b) => (b.n > a.n ? b : a), years[0]);
+const maxYear = Math.max(...years.map((x) => x.n), 1);
+const activeDays = days.filter((d) => d[1] > 0).length;
+const updated = new Date(data.fetchedAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+---
+<section id="github" class="section container" aria-labelledby="gh-title">
+  <div class="section-head reveal-head">
+    <h2 id="gh-title" class="section-title reveal-title">GitHub activity</h2>
+    <p class="section-lede reveal" style="--i:1">
+      {data.lastYearTotal.toLocaleString("en-US")} contributions in the last 12 months, across {data.publicRepos} public repositories.
+    </p>
+  </div>
+
+  <div class="gh card reveal" style="--i:1">
+    <div class="cal-scroll">
+      <div class="cal" style={`--weeks:${weeks}`}>
+        <div class="cal-months" aria-hidden="true">
+          {labels.map((l) => <span style={`grid-column:${l.col}`}>{l.text}</span>)}
+        </div>
+        <div class="cal-days" aria-hidden="true"><span>Mon</span><span>Wed</span><span>Fri</span></div>
+        <div
+          class="cal-grid"
+          role="img"
+          aria-label={`Contribution calendar: ${data.lastYearTotal} contributions on ${activeDays} days in the last 12 months`}
+        >
+          {cells.map((c) =>
+            c ? <i class={`l${c[2]}`} title={`${c[1]} contribution${c[1] === 1 ? "" : "s"} · ${fmt(c[0])}`}></i> : <i class="pad"></i>
+          )}
+        </div>
+      </div>
+    </div>
+
+    <div class="gh-foot">
+      <div class="legend" aria-hidden="true">
+        <span>Less</span><i class="l0"></i><i class="l1"></i><i class="l2"></i><i class="l3"></i><i class="l4"></i><span>More</span>
+      </div>
+      <p class="updated">Updated {updated}</p>
+    </div>
+  </div>
+
+  <div class="gh-stats">
+    <div class="stat card reveal" style="--i:2">
+      <p class="stat-k">Contributions by year</p>
+      <ul class="years" role="list">
+        {years.map((x) => (
+          <li>
+            <span class="yr">{x.y}</span>
+            <span class="bar" aria-hidden="true"><span style={`width:${Math.max(2, Math.round((x.n / maxYear) * 100))}%`}></span></span>
+            <span class="num">{x.n.toLocaleString("en-US")}</span>
+          </li>
+        ))}
+      </ul>
+      <p class="stat-note">Busiest year: {busiest.y} · {busiest.n.toLocaleString("en-US")} contributions</p>
+    </div>
+    <div class="stat card reveal" style="--i:3">
+      <p class="stat-k">Most-used languages (public repos)</p>
+      <ul class="tags langs" role="list">
+        {data.languages.map(([lang, n]) => <li class="tag">{lang} <span class="muted">· {n}</span></li>)}
+      </ul>
+      <a class="btn btn-ghost btn-sm gh-btn" href={profile.github} target="_blank" rel="noopener noreferrer">
+        <Icon name="github" /> View @{profile.githubHandle}<span class="sr-only"> on GitHub (opens in new tab)</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<style>
+  .gh { padding: 1.1rem 1.25rem 1rem; }
+  /* row-reverse: the scroll box starts at its END, so narrow screens open
+     on the most recent weeks without any script. */
+  .cal-scroll { display: flex; flex-direction: row-reverse; overflow-x: auto; padding-bottom: 0.4rem; scrollbar-width: thin; }
+  .cal {
+    --cell: max(10px, calc((100cqi - 2.4rem) / var(--weeks) - 3px));
+    flex: none; display: grid; grid-template-columns: 2rem auto; grid-template-rows: auto auto; gap: 0.35rem 0.4rem;
+    min-width: 100%;
+  }
+  .cal-scroll { container-type: inline-size; }
+  .cal-months { grid-column: 2; display: grid; grid-template-columns: repeat(var(--weeks), var(--cell)); column-gap: 3px; font-size: 0.72rem; color: var(--muted); }
+  .cal-months span { white-space: nowrap; }
+  .cal-days { grid-column: 1; grid-row: 2; display: grid; grid-template-rows: repeat(7, var(--cell)); row-gap: 3px; font-size: 0.68rem; color: var(--muted); }
+  .cal-days span:nth-child(1) { grid-row: 2; }
+  .cal-days span:nth-child(2) { grid-row: 4; }
+  .cal-days span:nth-child(3) { grid-row: 6; }
+  .cal-days span { line-height: var(--cell); }
+  .cal-grid {
+    grid-column: 2; grid-row: 2; display: grid; grid-auto-flow: column;
+    grid-template-rows: repeat(7, var(--cell)); grid-auto-columns: var(--cell); gap: 3px;
+  }
+  .cal-grid i, .legend i { display: block; width: var(--cell, 11px); height: var(--cell, 11px); border-radius: 3px; background: var(--surface-2); outline: 1px solid color-mix(in srgb, var(--ink) 5%, transparent); outline-offset: -1px; }
+  .cal-grid i.pad { background: transparent; outline: 0; }
+  .l1 { background: color-mix(in srgb, var(--accent) 28%, var(--surface-2)) !important; }
+  .l2 { background: color-mix(in srgb, var(--accent) 50%, var(--surface-2)) !important; }
+  .l3 { background: color-mix(in srgb, var(--accent) 74%, var(--surface-2)) !important; }
+  .l4 { background: var(--accent) !important; }
+  .gh-foot { display: flex; justify-content: space-between; align-items: center; gap: 1rem; margin-top: 0.6rem; flex-wrap: wrap; }
+  .legend { display: flex; align-items: center; gap: 3px; font-size: 0.72rem; color: var(--muted); }
+  .legend i { --cell: 11px; }
+  .legend span:first-child { margin-right: 4px; }
+  .legend span:last-child { margin-left: 4px; }
+  .updated { font-size: 0.75rem; color: var(--muted); }
+
+  .gh-stats { margin-top: 1rem; display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 1rem; }
+  .stat { padding: 1.1rem 1.25rem; display: grid; gap: 0.75rem; align-content: start; }
+  .stat-k { font-weight: 650; font-size: 0.9rem; }
+  .years { padding: 0; list-style: none; display: grid; gap: 0.45rem; }
+  .years li { display: grid; grid-template-columns: 2.8rem minmax(0, 1fr) 3.4rem; gap: 0.75rem; align-items: center; font-size: 0.85rem; }
+  .yr { color: var(--muted); font-variant-numeric: tabular-nums; }
+  .bar { height: 8px; border-radius: 99px; background: var(--surface-2); overflow: hidden; }
+  .bar span { display: block; height: 100%; border-radius: inherit; background: var(--accent); transform-origin: left; }
+  .motion-ok .reveal .bar span { transform: scaleX(0); transition: transform 1.1s var(--ease-out) 0.35s; }
+  .motion-ok .reveal.is-in .bar span { transform: scaleX(1); }
+  .years .num { text-align: right; font-weight: 600; }
+  .stat-note { color: var(--muted); font-size: 0.8rem; }
+  .gh-btn { width: fit-content; margin-top: 0.25rem; }
+
+  @media (max-width: 760px) {
+    .gh-stats { grid-template-columns: 1fr; }
+    .cal { --cell: 11px; }
+    .gh { padding-inline: 0.9rem; }
+  }
+</style>

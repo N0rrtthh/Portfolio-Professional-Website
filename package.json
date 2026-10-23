@@ -8,7 +8,9 @@
     "build": "astro build",
     "preview": "astro preview",
     "resume": "node scripts/build-resume.mjs",
-    "assets": "node scripts/build-assets.mjs"
+    "assets": "node scripts/build-assets.mjs",
+    "prebuild": "node scripts/fetch-github.mjs",
+    "github": "node scripts/fetch-github.mjs"
   },
   "dependencies": {
     "astro": "7.4.2"

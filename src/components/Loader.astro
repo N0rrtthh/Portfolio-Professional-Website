@@ -7,12 +7,14 @@
    underneath renders immediately (nothing waits on the loader).
    site.ts only swaps in a random quip and lets a click / key skip it.
    ══════════════════════════════════════════════════════════ */
-import { profile } from "../data/site";
-const count = 4;
+import { Image } from "astro:assets";
+import fox from "../assets/fox.png";
+import { projects } from "../data/site";
+const count = projects.filter((p) => p.published).length;
 ---
 <div id="loader" class="ld" aria-hidden="true">
   <div class="ld-box">
-    <div class="ld-mark"><span>{profile.initials}</span></div>
+    <div class="ld-mark"><Image src={fox} alt="" width={84} height={84} densities={[1, 2]} loading="eager" class="ld-fox" /></div>
     <pre class="ld-log"><span class="ld-l ld-l1"><span class="ld-prompt">~/elroni</span> <span class="ld-cmd">npm run hire-me</span></span>
 <span class="ld-l ld-l2"><span class="ld-dim">›</span> compiling {count} projects <span class="ld-dim">…</span> <span class="ld-ok">done</span></span>
 <span class="ld-l ld-l3"><span class="ld-dim">›</span> <span id="ld-quip">feeding the rubber duck</span><span class="ld-dim">…</span></span>
@@ -33,15 +35,19 @@ const count = 4;
     to { transform: translateY(-100%); visibility: hidden; pointer-events: none; }
   }
   .ld-box { display: grid; justify-items: center; gap: 1.4rem; padding: 1.5rem; }
+  /* The fox pops up from behind a ledge, then tilts its head at you. */
   .ld-mark {
-    width: 64px; height: 64px; border-radius: 18px;
-    display: grid; place-items: center;
-    background: var(--ink); color: var(--bg);
-    font: 400 1.9rem/1 var(--font-serif); letter-spacing: -0.02em;
-    animation: ld-pop 0.5s var(--ease-out) both;
+    width: 84px; height: 84px; overflow: hidden;
+    border-bottom: 2px solid var(--line-strong);
   }
-  .ld-mark span { transform: translateY(1px); }
-  @keyframes ld-pop { from { transform: scale(0.85) rotate(-6deg); opacity: 0; } }
+  .ld-mark :global(.ld-fox) {
+    width: 84px; height: 84px; transform-origin: 50% 90%;
+    animation: ld-peek 0.95s cubic-bezier(0.34, 1.4, 0.64, 1) both, ld-tilt 0.7s ease-in-out 0.55s both;
+  }
+  @keyframes ld-peek { from { transform: translateY(80%) scale(0.9); } to { transform: translateY(6%); } }
+  @keyframes ld-tilt {
+    0% { rotate: 0deg; } 35% { rotate: -12deg; } 70% { rotate: 6deg; } 100% { rotate: 0deg; }
+  }
   .ld-log {
     margin: 0; min-width: min(30ch, 82vw);
     font: 400 0.8rem/1.85 var(--font-mono); color: var(--ink-2);

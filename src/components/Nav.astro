@@ -1,9 +1,12 @@
 ---
+import { Image } from "astro:assets";
 import Icon from "./Icon.astro";
+import fox from "../assets/fox.png";
 import { profile } from "../data/site";
 const base = import.meta.env.BASE_URL.replace(/\/?$/, "/");
 const links = [
   { href: "#projects", label: "Projects" },
+  { href: "#certifications", label: "Certifications" },
   { href: "#skills", label: "Skills" },
   { href: "#about", label: "About" },
   { href: "#contact", label: "Contact" },
@@ -12,7 +15,7 @@ const links = [
 <header class="nav">
   <div class="container nav-inner">
     <a class="brand" href="#top" aria-label={`${profile.name} — back to top`}>
-      <span class="brand-mark" aria-hidden="true">{profile.initials}</span>
+      <Image src={fox} alt="" width={34} height={34} densities={[1, 2]} class="brand-mark" loading="eager" />
       <span class="brand-name">{profile.name}</span>
     </a>
 
@@ -21,6 +24,9 @@ const links = [
     </nav>
 
     <div class="nav-actions">
+      <button class="icon-btn glass-btn" type="button" data-glass-toggle aria-pressed="false" aria-label="Turn on liquid glass style" title="Liquid glass">
+        <Icon name="droplet" />
+      </button>
       <button class="icon-btn theme-btn" type="button" data-theme-toggle aria-label="Switch theme">
         <Icon name="moon" class="i-moon" />
         <Icon name="sun" class="i-sun" />
@@ -55,10 +61,9 @@ const links = [
   .nav-inner { height: var(--nav-h); display: flex; align-items: center; gap: 1rem; }
 
   .brand { display: inline-flex; align-items: center; gap: 0.6rem; text-decoration: none; margin-right: auto; min-height: 44px; }
-  .brand-mark {
-    width: 32px; height: 32px; border-radius: 9px; display: grid; place-items: center;
-    background: var(--ink); color: var(--bg); font: 400 1.05rem/1 var(--font-serif); letter-spacing: -0.02em;
-  }
+  .brand :global(.brand-mark) { width: 34px; height: 34px; object-fit: contain; transition: transform 0.35s var(--ease-out); }
+  .brand:hover :global(.brand-mark) { transform: rotate(-8deg) scale(1.06); }
+  .glass-btn[aria-pressed="true"] { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 45%, transparent); }
   .brand-name { font-weight: 600; font-size: 0.95rem; letter-spacing: -0.01em; }
 
   .nav-links { display: flex; gap: 0.25rem; }
@@ -87,7 +92,7 @@ const links = [
   .menu-panel a { padding: 0.75rem 0.9rem; border-radius: 8px; text-decoration: none; font-weight: 500; }
   .menu-panel a:hover { background: var(--surface-2); }
 
-  @media (max-width: 860px) {
+  @media (max-width: 1000px) {
     .nav-links { display: none; }
     .menu { display: block; }
   }

@@ -5,14 +5,14 @@ import { projects, otherWork } from "../data/site";
 const list = projects.filter((p) => p.published);
 ---
 <section id="projects" class="section container" aria-labelledby="projects-title">
-  <div class="section-head">
-    <h2 id="projects-title" class="section-title">Selected projects</h2>
-    <p class="section-lede">Four builds that show how I work — what the problem was, what I did, and what shipped. Open a case study for the details.</p>
+  <div class="section-head reveal-head">
+    <h2 id="projects-title" class="section-title reveal-title">Selected projects</h2>
+    <p class="section-lede reveal" style="--i:1">Four builds that show how I work — what the problem was, what I did, and what shipped. Open a case study for the details.</p>
   </div>
 
   <ul class="grid" role="list">
-    {list.map((p) => (
-      <li class="proj card">
+    {list.map((p, i) => (
+      <li class="proj card reveal" style={`--i:${i % 2}`}>
         <ProjectMedia image={p.image} phoneImage={p.phoneImage} alt={`${p.name} screenshot`} />
         <div class="proj-body">
           <div class="proj-top">
@@ -51,7 +51,7 @@ const list = projects.filter((p) => p.published);
     ))}
   </ul>
 
-  <div class="other">
+  <div class="other reveal">
     <h3 class="other-title">Also built</h3>
     <ul class="other-list" role="list">
       {otherWork.map((o) => (
@@ -161,7 +161,7 @@ const list = projects.filter((p) => p.published);
   }
   .proj-body { padding: 1.15rem 1.25rem 1.2rem; display: flex; flex-direction: column; gap: 0.65rem; flex: 1; }
   .proj-top { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; }
-  .proj-name { font: 400 1.75rem/1 var(--font-serif); letter-spacing: -0.015em; }
+  .proj-name { font: 680 1.5rem/1.1 var(--font-display); letter-spacing: -0.035em; }
   .proj-year { font-size: 0.85rem; }
   .proj-kind { margin-top: -0.35rem; color: var(--muted); font-size: 0.82rem; font-weight: 550; }
   .proj-problem { color: var(--ink-2); font-size: 0.94rem; line-height: 1.55; }
@@ -208,7 +208,7 @@ const list = projects.filter((p) => p.published);
     padding: 1.1rem 1.25rem 1rem 1.5rem; border-bottom: 1px solid var(--line);
   }
   .case-head .proj-kind { margin: 0 0 0.25rem; }
-  .case-title { font: 400 2.1rem/1 var(--font-serif); letter-spacing: -0.02em; }
+  .case-title { font: 680 1.85rem/1.1 var(--font-display); letter-spacing: -0.035em; }
   .case-body { overflow-y: auto; overscroll-behavior: contain; padding: 1.25rem 1.5rem 1.6rem; }
   .case-grid { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: 2rem; margin-top: 1.5rem; }
   .case-main, .case-side { display: grid; gap: 1.35rem; align-content: start; }

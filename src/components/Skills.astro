@@ -2,13 +2,13 @@
 import { skills } from "../data/site";
 ---
 <section id="skills" class="section container skills" aria-labelledby="skills-title">
-  <div class="section-head">
-    <h2 id="skills-title" class="section-title">Skills</h2>
-    <p class="section-lede">Tools I have used in the projects and internship above — not a wish list.</p>
+  <div class="section-head reveal-head">
+    <h2 id="skills-title" class="section-title reveal-title">Skills</h2>
+    <p class="section-lede reveal" style="--i:1">Tools I have used in the projects and internship above — not a wish list.</p>
   </div>
   <dl class="skill-table card">
-    {skills.map((s) => (
-      <div class="skill-row">
+    {skills.map((s, i) => (
+      <div class="skill-row reveal" style={`--i:${i}`}>
         <dt>{s.group}</dt>
         <dd>
           <ul class="tags">{s.items.map((i) => <li class="tag">{i}</li>)}</ul>

@@ -10,6 +10,12 @@
      · nav: hairline once scrolled
    ══════════════════════════════════════════════════════════ */
 
+(window as Window & { __eqReady?: boolean }).__eqReady = true;
+const rootEl = document.documentElement;
+
+/* Hero entrance plays as the loader lifts (or at once without a loader). */
+const heroIn = () => rootEl.classList.add("hero-in");
+
 /* ── Loader ───────────────────────────────────────────────── */
 const QUIPS = [
   "feeding the rubber duck",
@@ -25,12 +31,43 @@ const loader = document.getElementById("loader");
 if (loader) {
   const quip = document.getElementById("ld-quip");
   if (quip) quip.textContent = QUIPS[Math.floor(Math.random() * QUIPS.length)];
-  const skip = () => loader.classList.add("is-skipped");
+  const skip = () => {
+    loader.classList.add("is-skipped");
+    heroIn();
+  };
   window.addEventListener("keydown", skip, { once: true });
   loader.addEventListener("pointerdown", skip, { once: true });
+  loader.addEventListener("animationstart", (e) => {
+    if (e.target === loader && e.animationName === "ld-exit") setTimeout(heroIn, 120);
+  });
   loader.addEventListener("animationend", (e) => {
     if (e.target === loader && e.animationName === "ld-exit") loader.remove();
   });
+  setTimeout(heroIn, 1300); // belt and braces if animation events are missed
+} else {
+  requestAnimationFrame(heroIn);
+}
+
+/* ── Section reveals ──────────────────────────────────────── */
+/* Each .reveal / .reveal-title / .reveal-head gets .is-in once ~15% of
+   it is on screen, and is then left alone (no replay on scroll-back). */
+if (rootEl.classList.contains("motion-ok") && "IntersectionObserver" in window) {
+  const io = new IntersectionObserver(
+    (entries) => {
+      for (const entry of entries) {
+        if (!entry.isIntersecting) continue;
+        entry.target.classList.add("is-in");
+        // Titles start fully clipped (zero visible area), so they can't be
+        // observed themselves — they reveal with their container.
+        entry.target.querySelectorAll(".reveal-title").forEach((t) => t.classList.add("is-in"));
+        io.unobserve(entry.target);
+      }
+    },
+    { rootMargin: "0px 0px -12% 0px", threshold: 0.12 }
+  );
+  document.querySelectorAll(".reveal, .reveal-head").forEach((el) => io.observe(el));
+} else {
+  document.querySelectorAll(".reveal, .reveal-title, .reveal-head").forEach((el) => el.classList.add("is-in"));
 }
 
 /* ── Theme ────────────────────────────────────────────────── */
@@ -52,23 +89,44 @@ function applyTheme(next: "light" | "dark") {
 }
 applyTheme((root.dataset.theme as "light" | "dark") || "light");
 
-document.querySelectorAll<HTMLButtonElement>("[data-theme-toggle]").forEach((btn) => {
-  btn.addEventListener("click", () => {
-    const next = root.dataset.theme === "dark" ? "light" : "dark";
-    const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const doc = document as Document & { startViewTransition?: (cb: () => void) => unknown };
-    if (!doc.startViewTransition || reduced) return applyTheme(next);
+/** Swap a look (theme / glass) with a circular reveal from the button. */
+function revealFrom(btn: HTMLElement, change: () => void) {
+  const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const doc = document as Document & { startViewTransition?: (cb: () => void) => unknown };
+  if (!doc.startViewTransition || reduced) return change();
+  // Reveal the new look from the button itself, out to the far corner.
+  const r = btn.getBoundingClientRect();
+  const x = r.left + r.width / 2;
+  const y = r.top + r.height / 2;
+  const radius = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
+  root.style.setProperty("--vt-x", `${x}px`);
+  root.style.setProperty("--vt-y", `${y}px`);
+  root.style.setProperty("--vt-r", `${Math.ceil(radius)}px`);
+  doc.startViewTransition(change);
+}
 
-    // Reveal the new palette from the button itself, out to the far corner.
-    const r = btn.getBoundingClientRect();
-    const x = r.left + r.width / 2;
-    const y = r.top + r.height / 2;
-    const radius = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
-    root.style.setProperty("--vt-x", `${x}px`);
-    root.style.setProperty("--vt-y", `${y}px`);
-    root.style.setProperty("--vt-r", `${Math.ceil(radius)}px`);
-    doc.startViewTransition(() => applyTheme(next));
+document.querySelectorAll<HTMLButtonElement>("[data-theme-toggle]").forEach((btn) => {
+  btn.addEventListener("click", () => revealFrom(btn, () => applyTheme(root.dataset.theme === "dark" ? "light" : "dark")));
+});
+
+/* ── Liquid glass ─────────────────────────────────────────── */
+function applyGlass(on: boolean) {
+  if (on) root.dataset.glass = "on";
+  else delete root.dataset.glass;
+  try {
+    localStorage.setItem("eq-glass", on ? "on" : "off");
+  } catch {
+    /* not remembered in private mode */
+  }
+  document.querySelectorAll<HTMLButtonElement>("[data-glass-toggle]").forEach((b) => {
+    b.setAttribute("aria-pressed", String(on));
+    b.setAttribute("aria-label", on ? "Turn off liquid glass style" : "Turn on liquid glass style");
   });
+}
+applyGlass(root.dataset.glass === "on");
+
+document.querySelectorAll<HTMLButtonElement>("[data-glass-toggle]").forEach((btn) => {
+  btn.addEventListener("click", () => revealFrom(btn, () => applyGlass(root.dataset.glass !== "on")));
 });
 
 /* ── Case-study dialogs ───────────────────────────────────── */

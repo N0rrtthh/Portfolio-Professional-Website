@@ -5,9 +5,9 @@ const base = import.meta.env.BASE_URL.replace(/\/?$/, "/");
 const year = new Date().getFullYear();
 ---
 <section id="contact" class="section container" aria-labelledby="contact-title">
-  <div class="cta card">
+  <div class="cta card reveal">
     <div class="cta-copy">
-      <h2 id="contact-title" class="display cta-title">Have a role or project in mind?</h2>
+      <h2 id="contact-title" class="display cta-title reveal-title">Have a role or project in mind?</h2>
       <p class="cta-text">I'd be happy to discuss how I can contribute to your team. Email is the fastest way to reach me.</p>
     </div>
 
@@ -50,7 +50,7 @@ const year = new Date().getFullYear();
     display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 2rem 3rem; align-items: center;
     padding: clamp(1.5rem, 4vw, 2.75rem); box-shadow: var(--shadow);
   }
-  .cta-title { font-size: clamp(2.2rem, 4.6vw, 3.4rem); }
+  .cta-title { font-size: clamp(2rem, 4vw, 3rem); }
   .cta-text { margin-top: 0.9rem; color: var(--muted); max-width: 44ch; }
   .cta-actions { display: grid; gap: 0.75rem; justify-items: start; }
   .mail-row { display: flex; gap: 0.5rem; align-items: center; max-width: 100%; }
