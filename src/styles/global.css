@@ -111,7 +111,7 @@ a:hover { text-decoration-color: currentColor; }
   line-height: 1;
   text-wrap: balance;
 }
-.section { padding-block: clamp(2.25rem, 5.5vw, 4.25rem); }
+.section { padding-block: clamp(2.75rem, 5.5vw, 4.25rem); }
 .section-head { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 0.75rem 2rem; margin-bottom: clamp(1.5rem, 3vw, 2.25rem); }
 .section-title { font-family: var(--font-display); font-weight: 680; font-size: clamp(1.85rem, 3.6vw, 2.5rem); line-height: 1.05; letter-spacing: -0.035em; }
 .section-lede { color: var(--muted); max-width: 46ch; font-size: 0.975rem; }
@@ -313,7 +313,7 @@ a:hover { text-decoration-color: currentColor; }
 }
 
 /* ── Glass surfaces ────────────────────────────────────────── */
-[data-glass="on"] :is(.card, .btn-ghost, .icon-btn, .status) {
+[data-glass="on"] :is(.card, .btn-ghost, .icon-btn, .status, .menu-panel) {
   position: relative;
   background: var(--g-fill);
   border-color: transparent;
@@ -323,7 +323,7 @@ a:hover { text-decoration-color: currentColor; }
    (controls that float over text). Content cards sit on the soft colour
    field, where a 3px blur is invisible but costs a full re-sample of every
    card on every frame of the moving background. */
-[data-glass="on"] :is(.btn-ghost, .icon-btn, .status) {
+[data-glass="on"] :is(.btn-ghost, .icon-btn, .status, .menu-panel) {
   -webkit-backdrop-filter: var(--g-blur);
   backdrop-filter: var(--g-blur);
 }
@@ -334,7 +334,7 @@ a:hover { text-decoration-color: currentColor; }
   border-color: transparent;
 }
 /* 1px specular rim: a gradient border drawn by a masked pseudo-element. */
-[data-glass="on"] :is(.card, .btn-ghost, .icon-btn, .status)::before,
+[data-glass="on"] :is(.card, .btn-ghost, .icon-btn, .status, .menu-panel)::before,
 [data-glass="on"] .nav.is-scrolled .nav-inner::before {
   content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 1px; pointer-events: none; z-index: 4;
   background: var(--g-rim);
@@ -392,39 +392,22 @@ a:hover { text-decoration-color: currentColor; }
 :root[data-glass="on"][data-theme="light"] { --muted: #4b4d53; --ink-2: #2c2d31; }
 
 /* ══════════════════════════════════════════════════════════
-   NAV LENS (html.lens-on, scripts/lens.ts) — the nav bar and pill are
-   CLEAR liquid glass in light, dark and glass mode alike, refracting the
-   live page behind them. Only a faint theme tint, plus a soft halo behind
-   the labels (iOS-style), keeps the text readable over any backdrop. The
-   lighting is inside the SVG filter; the drop shadow comes from the lens
-   (--lens-shadow, set by JS).
+   NAV LENS (html.lens-on, scripts/lens.ts) — the floating pill refracts
+   the live page behind it in light, dark and glass mode. All lighting
+   (specular, fresnel, rim) is inside the SVG filter, ported from the
+   glass shader, so the pill itself is just a clear, shaped window; the
+   drop shadow comes from the same settings (--lens-shadow, set by JS).
    ══════════════════════════════════════════════════════════ */
-:root {
-  --lens-tint: rgb(255 255 255 / 0.2);
-  --lens-tint-strong: rgb(255 255 255 / 0.62);
-  --lens-halo: rgb(255 255 255 / 0.95);
-}
-:root[data-theme="dark"] {
-  --lens-tint: rgb(17 18 21 / 0.28);
-  --lens-tint-strong: rgb(17 18 21 / 0.7);
-  --lens-halo: rgb(0 0 0 / 0.85);
-}
-:root.lens-on .nav .nav-inner {
-  background: var(--lens-tint) !important;
+:root.lens-on .nav.is-scrolled .nav-inner {
+  background: transparent !important;
   border-color: transparent !important;
+  border-radius: min(var(--glass-r, 40px), 27px) !important;
   box-shadow: var(--lens-shadow, none) !important;
   -webkit-backdrop-filter: url(#nav-lens) !important;
   backdrop-filter: url(#nav-lens) !important;
 }
-:root.lens-on .nav .nav-inner::before,
-:root.lens-on .nav .nav-inner::after { display: none !important; }
-/* Labels on clear glass: full-strength ink with a soft halo, never the
-   muted grey, so they read over bright and dark content alike. */
-:root.lens-on .nav .nav-links a { color: var(--ink-2); }
-:root.lens-on .nav :is(.nav-links a, .brand-name) {
-  text-shadow: 0 0 1px var(--lens-halo), 0 0 6px var(--lens-halo), 0 0 14px var(--lens-halo);
-}
-:root.lens-on .nav .nav-links a:hover { color: var(--ink); }
+:root.lens-on .nav.is-scrolled .nav-inner::before,
+:root.lens-on .nav.is-scrolled .nav-inner::after { display: none !important; }
 
 /* ── Droplet: hover-hold ring → glass settings ──────────────── */
 @property --arm { syntax: "<number>"; inherits: false; initial-value: 0; }

@@ -1,24 +1,25 @@
 /* ══════════════════════════════════════════════════════════
-   LENS — live liquid glass for the nav bar/pill and its menu
+   NAV LENS — live liquid glass on the nav pill
    ──────────────────────────────────────────────────────────
    The WebGL library can only refract canvases it owns, not the live page,
-   so these surfaces run the library's glass maths through the browser
-   compositor instead: an SVG filter applied as `backdrop-filter: url(#…)`,
+   so the nav runs the same glass maths through the browser compositor
+   instead: an SVG filter applied as `backdrop-filter: url(#nav-lens)`,
    which bends whatever is scrolling underneath.
 
    Every per-pixel term of the library's fragment shader (FS_GLASS) —
    bevel refraction, chromatic split, specular lights, fresnel, rim and
-   inner glow — depends only on the surface's shape, so it is baked once
-   into small images that the filter reads:
+   inner glow — depends only on the panel's shape and settings, so it is
+   baked once into small images that the filter reads:
      · three displacement maps (red / green / blue sample offsets)
      · one light map (multiply + add terms of the shader's composite)
-   Blur, brightness, saturation and opacity are native filter primitives
-   with the shader's constants.
+   The blur, micro-distortion, brightness, saturation and opacity steps
+   are native filter primitives with the shader's constants.
 
-   Maps are rebuilt only when a surface settles at a new size. Chromium
-   only (html.liquid-ok); other browsers keep the CSS frosted glass.
+   Maps are rebuilt when the pill settles at a new size or a setting
+   changes. Chromium only (html.liquid-ok); other browsers keep the CSS
+   frosted glass.
    ══════════════════════════════════════════════════════════ */
-import type { GlassSettings } from "./glass-config";
+import { getGlass, onGlass, type GlassSettings } from "./glass-config";
 
 const NS = "http://www.w3.org/2000/svg";
 
@@ -144,8 +145,8 @@ async function bake(W: number, H: number, s: GlassSettings, dpr: number): Promis
     for (let q = 0; q < 6; q++) maxOff = Math.max(maxOff, Math.abs(offs[o + q]));
     light[L] = t.add * 255;
     light[L + 1] = (t.mul / 1.1) * 255;
-    // B: where micro-distortion may act (not within ~3px of the edge, where
-    // its jitter would reach outside the backdrop) — used by the panel lens.
+    // B: where the micro-distortion may act (not within ~3px of the edge,
+    // where its jitter would reach outside the backdrop).
     light[L + 2] = smoothstep(1.5, 4, Math.min(sx, W - sx, sy, H - sy, t.inside / k)) * 255;
   };
 
@@ -193,12 +194,7 @@ async function bake(W: number, H: number, s: GlassSettings, dpr: number): Promis
     });
   const maps = [new Uint8ClampedArray(n * 4), new Uint8ClampedArray(n * 4), new Uint8ClampedArray(n * 4)];
   const f = 255 / scale;
-  const yieldNow = () => new Promise((go) => setTimeout(go));
   for (let p = 0; p < n; p++) {
-    if ((p & 4095) === 0 && performance.now() - slice > 8) {
-      await yieldNow();
-      slice = performance.now();
-    }
     const o = p * 6;
     const q = p * 4;
     for (let c = 0; c < 3; c++) {
@@ -209,40 +205,40 @@ async function bake(W: number, H: number, s: GlassSettings, dpr: number): Promis
       d[q + 3] = 255;
     }
   }
-  // One image per task, so encoding never stacks into one long task.
-  const out: string[] = [];
-  for (const d of [maps[0], maps[1], maps[2], light]) {
-    await yieldNow();
-    out.push(await encode(d));
-  }
-  const [mr, mg, mb, ml] = out;
+  const [mr, mg, mb, ml] = await Promise.all([encode(maps[0]), encode(maps[1]), encode(maps[2]), encode(light)]);
   return { r: mr, g: mg, b: mb, light: ml, scale };
 }
 
 export { bake };
 
-/* ── A lens on one element ─────────────────────────────────────
-   Builds a private filter (#<id>), keeps it baked to the element's
-   current size and corner radius, and reports when it is usable. The
-   element's CSS applies it with `backdrop-filter: url(#<id>)` and reads
-   its drop shadow from --lens-shadow. */
-export type Lens = { schedule: (delay?: number) => void; ready: () => boolean };
+export function initNavLens(): void {
+  const html = document.documentElement;
+  const nav = document.querySelector<HTMLElement>(".nav");
+  const inner = nav?.querySelector<HTMLElement>(".nav-inner");
+  if (!nav || !inner || !html.classList.contains("liquid-ok")) return;
 
-export function createLens(el: HTMLElement, id: string, s: GlassSettings, onReady: () => void): Lens {
+  /* ── Filter graph (built once; attributes change later) ────── */
   const svg = svgEl("svg", { width: "0", height: "0", "aria-hidden": "true", focusable: "false" });
-  svg.style.cssText = "position:absolute;width:0;height:0;overflow:hidden;pointer-events:none";
-  const filter = svgEl("filter", { id, x: "0", y: "0", filterUnits: "userSpaceOnUse", "color-interpolation-filters": "sRGB" });
+  svg.style.cssText = "position:absolute;width:0;height:0;overflow:hidden";
+  const filter = svgEl("filter", { id: "nav-lens", x: "0", y: "0", filterUnits: "userSpaceOnUse", "color-interpolation-filters": "sRGB" });
   const img = (result: string) => svgEl("feImage", { x: "0", y: "0", preserveAspectRatio: "none", result });
   const mapR = img("mr");
   const mapG = img("mg");
   const mapB = img("mb");
   const mapL = img("ml");
-  const k = () => Math.min(window.devicePixelRatio || 1, 3);
   // Background blur: the library's 6 × separable 9-tap Gaussian passes.
-  const blur = svgEl("feGaussianBlur", { in: "SourceGraphic", stdDeviation: ((s.blurAmount * 10.35) / k()).toFixed(2), result: "blurA" });
+  const blur = svgEl("feGaussianBlur", { in: "SourceGraphic", result: "blurA" });
   // Un-premultiply to opaque: the blur's edge pixels keep their true colour
   // instead of fading into the empty space outside the backdrop.
-  const opaque = svgEl("feColorMatrix", { in: "blurA", type: "matrix", values: "1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 0 1", result: "src" });
+  const opaque = svgEl("feColorMatrix", { in: "blurA", type: "matrix", values: "1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 0 1", result: "blur" });
+  // Micro-distortion: per-pixel jitter of the sample point.
+  const noise = svgEl("feTurbulence", { type: "fractalNoise", baseFrequency: "0.85", numOctaves: "1", seed: "7", result: "noiseT" });
+  // Turbulence fills alpha with noise too; make it opaque before using it.
+  const noiseO = svgEl("feColorMatrix", { in: "noiseT", type: "matrix", values: "1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 0 1", result: "noiseA" });
+  // noise → 0.5 + (noise − 0.5) × mask (light map B), so the rim stays clean.
+  const maskL = svgEl("feColorMatrix", { in: "ml", type: "matrix", values: "0 0 1 0 0  0 0 1 0 0  0 0 1 0 0  0 0 0 0 1", result: "jmask" });
+  const noiseM = svgEl("feComposite", { in: "noiseA", in2: "jmask", operator: "arithmetic", k1: "1", k2: "0", k3: "-0.5", k4: "0.5", result: "noise" });
+  const jitter = svgEl("feDisplacementMap", { in: "blur", in2: "noise", xChannelSelector: "R", yChannelSelector: "G", result: "src" });
   const disp = (map: string, out: string, matrix: string) => {
     const d = svgEl("feDisplacementMap", { in: "src", in2: map, xChannelSelector: "R", yChannelSelector: "G", result: `${out}d` });
     const only = svgEl("feColorMatrix", { in: `${out}d`, type: "matrix", values: matrix, result: out });
@@ -252,67 +248,85 @@ export function createLens(el: HTMLElement, id: string, s: GlassSettings, onRead
   const [dG, oG] = disp("mg", "cg", "0 0 0 0 0  0 1 0 0 0  0 0 0 0 0  0 0 0 1 0");
   const [dB, oB] = disp("mb", "cb", "0 0 0 0 0  0 0 0 0 0  0 0 1 0 0  0 0 0 1 0");
   // Brightness × saturation (shader luma weights), one matrix.
-  const b = 1 + s.brightness;
-  const t = 1 + s.saturation;
-  const [lr, lg, lb] = [0.299 * (1 - t), 0.587 * (1 - t), 0.114 * (1 - t)];
-  const grade = [
-    [lr + t, lg, lb],
-    [lr, lg + t, lb],
-    [lr, lg, lb + t],
-  ]
-    .map((row) => `${row.map((v) => (v * b).toFixed(4)).join(" ")} 0 0`)
-    .join("  ");
+  const grade = svgEl("feColorMatrix", { in: "rgb", type: "matrix", result: "graded" });
+  // Light map → grey multiply (G) and add (R) layers.
+  const mulL = svgEl("feColorMatrix", { in: "ml", type: "matrix", values: "0 1 0 0 0  0 1 0 0 0  0 1 0 0 0  0 0 0 0 1", result: "lmul" });
+  const addL = svgEl("feColorMatrix", { in: "ml", type: "matrix", values: "1 0 0 0 0  1 0 0 0 0  1 0 0 0 0  0 0 0 0 1", result: "ladd" });
+  const opacity = svgEl("feComposite", { in: "lit", in2: "SourceGraphic", operator: "arithmetic", k1: "0", k4: "0" });
   filter.append(
     mapR, mapG, mapB, mapL,
-    blur, opaque,
+    blur, opaque, noise, noiseO, maskL, noiseM, jitter,
     dR, oR, dG, oG, dB, oB,
     svgEl("feBlend", { in: "cr", in2: "cg", mode: "screen", result: "rg" }),
     svgEl("feBlend", { in: "rg", in2: "cb", mode: "screen", result: "rgb" }),
-    svgEl("feColorMatrix", { in: "rgb", type: "matrix", values: `${grade}  0 0 0 1 0`, result: "graded" }),
-    // Light map → grey multiply (G) and add (R) layers of the shader composite.
-    svgEl("feColorMatrix", { in: "ml", type: "matrix", values: "0 1 0 0 0  0 1 0 0 0  0 1 0 0 0  0 0 0 0 1", result: "lmul" }),
-    svgEl("feColorMatrix", { in: "ml", type: "matrix", values: "1 0 0 0 0  1 0 0 0 0  1 0 0 0 0  0 0 0 0 1", result: "ladd" }),
+    grade, mulL, addL,
     svgEl("feComposite", { in: "graded", in2: "lmul", operator: "arithmetic", k1: "1.1", k2: "0", k3: "0", k4: "0", result: "mul" }),
     svgEl("feComposite", { in: "mul", in2: "ladd", operator: "arithmetic", k1: "0", k2: "1", k3: "1", k4: "0", result: "lit" }),
-    svgEl("feComposite", { in: "lit", in2: "SourceGraphic", operator: "arithmetic", k1: "0", k2: String(s.opacity), k3: String(1 - s.opacity), k4: "0" }),
+    opacity,
     svgEl("feColorMatrix", { type: "matrix", values: "1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 0 1" }),
   );
   svg.append(filter);
   document.body.append(svg);
 
-  // Shader shadow: Gaussian falloff (σ = spread/√2) ×0.65 + contact ×0.35.
-  const sp = Math.max(s.shadowSpread, 1);
-  const a = s.shadowOpacity;
-  el.style.setProperty(
-    "--lens-shadow",
-    `0 1px ${(sp * 1.414).toFixed(1)}px rgb(0 0 0 / ${(0.65 * a).toFixed(3)}), 0 1px ${(sp * 0.5).toFixed(1)}px rgb(0 0 0 / ${(0.35 * a).toFixed(3)})`,
-  );
+  /* ── Settings that need no re-bake ──────────────────────────── */
+  const dpr = () => Math.min(window.devicePixelRatio || 1, 3);
+  const applyCheap = (s: GlassSettings) => {
+    const k = dpr();
+    blur.setAttribute("stdDeviation", ((s.blurAmount * 10.35) / k).toFixed(2));
+    // hash() noise is uniform ±2·distortion device px; turbulence σ ≈ 0.12.
+    jitter.setAttribute("scale", ((s.distortion * 9.6) / k).toFixed(2));
+    const b = 1 + s.brightness;
+    const t = 1 + s.saturation;
+    const lr = 0.299 * (1 - t);
+    const lg = 0.587 * (1 - t);
+    const lb = 0.114 * (1 - t);
+    const m = [
+      [lr + t, lg, lb],
+      [lr, lg + t, lb],
+      [lr, lg, lb + t],
+    ]
+      .map((row) => `${row.map((v) => (v * b).toFixed(4)).join(" ")} 0 0`)
+      .join("  ");
+    grade.setAttribute("values", `${m}  0 0 0 1 0`);
+    opacity.setAttribute("k2", String(s.opacity));
+    opacity.setAttribute("k3", String(1 - s.opacity));
+    // Shader shadow: Gaussian falloff (σ = spread/√2) ×0.65 + contact ×0.35.
+    const a = s.shadowOpacity;
+    const sp = Math.max(s.shadowSpread, 1);
+    html.style.setProperty(
+      "--lens-shadow",
+      a > 0 ? `0 1px ${(sp * 1.414).toFixed(1)}px rgb(0 0 0 / ${(0.65 * a).toFixed(3)}), 0 1px ${(sp * 0.5).toFixed(1)}px rgb(0 0 0 / ${(0.35 * a).toFixed(3)})` : "none",
+    );
+  };
 
-  /* Bake on settle: while the element animates (bar → pill), the current
-     maps are stretched to its box; the bake runs once it holds still. */
+  /* ── Bake on settle ──────────────────────────────────────────
+     While the bar → pill morph runs, the old maps are stretched to the
+     current box; the bake runs once the size has held still. */
   let baked = "";
-  let isReady = false;
   let timer = 0;
-  let run = 0;
-  let urls: string[] = [];
+  const size = () => ({ W: inner.offsetWidth, H: inner.offsetHeight });
   const stretch = () => {
-    const W = String(el.offsetWidth);
-    const H = String(el.offsetHeight);
+    const { W, H } = size();
     for (const e of [filter, mapR, mapG, mapB, mapL]) {
-      e.setAttribute("width", W);
-      e.setAttribute("height", H);
+      e.setAttribute("width", String(W));
+      e.setAttribute("height", String(H));
     }
   };
+  let run = 0;
+  let urls: string[] = [];
   const rebake = async () => {
-    const W = el.offsetWidth;
-    const H = el.offsetHeight;
-    if (W < 24 || H < 16) return;
-    const r = parseFloat(getComputedStyle(el).borderTopLeftRadius) || 0;
-    const key = `${W}x${H}r${Math.round(r)}@${k()}`;
+    if (!nav.classList.contains("is-scrolled")) {
+      html.classList.remove("lens-on");
+      return;
+    }
+    const { W, H } = size();
+    if (W < 40 || H < 20) return;
+    const s = getGlass();
+    const key = `${W}x${H}@${dpr()}|${s.cornerRadius},${s.zRadius},${s.refraction},${s.chromAberration},${s.edgeHighlight},${s.specular},${s.fresnel},${s.bevelMode}`;
     if (key === baked) return;
     baked = key;
     const mine = ++run;
-    const m = await bake(W, H, { ...s, cornerRadius: r }, k());
+    const m = await bake(W, H, s, dpr());
     const fresh = [m.r, m.g, m.b, m.light];
     if (mine !== run) {
       fresh.forEach((u) => u.startsWith("blob:") && URL.revokeObjectURL(u));
@@ -326,76 +340,22 @@ export function createLens(el: HTMLElement, id: string, s: GlassSettings, onRead
     mapL.setAttribute("href", m.light);
     for (const d of [dR, dG, dB]) d.setAttribute("scale", String(m.scale));
     stretch();
-    if (!isReady) {
-      isReady = true;
-      onReady();
-    }
+    html.classList.add("lens-on");
   };
-  const schedule = (delay = 160) => {
+  const schedule = (delay: number) => {
     stretch();
     clearTimeout(timer);
     timer = window.setTimeout(() => void rebake(), delay);
   };
-  new ResizeObserver(() => schedule()).observe(el);
-  return { schedule, ready: () => isReady };
-}
 
-/* ── Fixed glass for the nav and its menu ──────────────────────
-   Clear glass by default, and not tied to the glass-settings panel (that
-   styles glass mode's cards and previews on itself): the nav always looks
-   the same. Playground clear-glass values with only a whisper of blur, the
-   bevel kept to the rim so the labels sit on a calm centre, and no
-   micro-noise (it would re-run on every scroll frame). */
-export const NAV_GLASS: GlassSettings = {
-  blurAmount: 0.06,
-  refraction: 0.82,
-  chromAberration: 0.155,
-  edgeHighlight: 0.05,
-  specular: 0.25,
-  fresnel: 0.48,
-  distortion: 0,
-  cornerRadius: 27,
-  zRadius: 18,
-  opacity: 1,
-  saturation: 0.44,
-  brightness: 0.1,
-  shadowOpacity: 0.21,
-  shadowSpread: 12,
-  bevelMode: 0,
-};
-
-const supported = () => document.documentElement.classList.contains("liquid-ok");
-
-/** Nav bar / pill: liquid glass in every theme and mode (Chromium). */
-export function initNavLens(): void {
-  const html = document.documentElement;
-  const nav = document.querySelector<HTMLElement>(".nav");
-  const inner = nav?.querySelector<HTMLElement>(".nav-inner");
-  if (!nav || !inner || !supported()) return;
-  let started = false;
-  const EVENTS = ["pointermove", "pointerdown", "wheel", "touchstart", "keydown", "scroll"] as const;
-  const start = () => {
-    if (started) return;
-    started = true;
-    for (const t of EVENTS) removeEventListener(t, start, true);
-    const lens = createLens(inner, "nav-lens", NAV_GLASS, () => html.classList.add("lens-on"));
-    // The bar ↔ pill morph (0.7s) keeps the resize observer pushing the
-    // bake back until the new shape has settled.
-    new MutationObserver(() => lens.schedule()).observe(nav, { attributes: true, attributeFilter: ["class"] });
-    lens.schedule(0);
-  };
-  // The first bake waits for the visitor's first interaction (or a few
-  // quiet seconds), so it never competes with the page loading; until then
-  // the bar shows the CSS frosted glass.
-  for (const t of EVENTS) addEventListener(t, start, { capture: true, passive: true, once: true });
-  const ric = (window as Window & { requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => number }).requestIdleCallback;
-  setTimeout(() => (ric ? ric(start, { timeout: 2000 }) : start()), 6000);
-}
-
-/** The section menu (a popover): baked when it first opens. */
-export function initMenuLens(panel: HTMLElement): Lens | null {
-  if (!supported()) return null;
-  // A list of links over busy content: heavily frosted, so only the rim
-  // shows the refraction and the labels never compete with the page.
-  return createLens(panel, "menu-lens", { ...NAV_GLASS, zRadius: 14, blurAmount: 0.9 }, () => panel.classList.add("lens-on"));
+  applyCheap(getGlass());
+  onGlass((s) => {
+    applyCheap(s);
+    schedule(30);
+  });
+  new ResizeObserver(() => schedule(160)).observe(inner);
+  // On the first scroll the bar morphs into the pill (0.7s); the resize
+  // observer keeps pushing the bake back until the pill has settled.
+  new MutationObserver(() => schedule(160)).observe(nav, { attributes: true, attributeFilter: ["class"] });
+  schedule(0);
 }

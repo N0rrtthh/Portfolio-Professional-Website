@@ -254,10 +254,8 @@ const list = projects.filter((p) => p.published);
   .outcome li { color: var(--ink); }
   .case-links { display: flex; flex-direction: column; align-items: flex-start; gap: 0.5rem; }
 
-  @media (max-width: 640px) {
-    .grid { grid-template-columns: 1fr; }
-  }
   @media (max-width: 860px) {
+    .grid { grid-template-columns: 1fr; }
     .case-grid { grid-template-columns: 1fr; gap: 1.35rem; }
     .other { grid-template-columns: 1fr; gap: 0.25rem; }
     .other-title { padding-top: 0; }
