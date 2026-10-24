@@ -3,8 +3,8 @@
    ──────────────────────────────────────────────────────────
    Same names, ranges and meaning as the @ybouane/liquidglass playground
    (liquid-glass.ybouane.com). Used by the WebGL cards (liquid.ts) in glass
-   mode, edited live from the settings panel (glass-panel.ts) and
-   remembered per visitor.
+   mode and previewed live on the settings panel's own glass
+   (glass-panel.ts); remembered per visitor.
    The nav and its menu are deliberately NOT tied to these: they keep
    their own fixed glass (lens.ts → NAV_GLASS) in every theme and mode.
    ══════════════════════════════════════════════════════════ */

@@ -144,6 +144,9 @@ async function bake(W: number, H: number, s: GlassSettings, dpr: number): Promis
     for (let q = 0; q < 6; q++) maxOff = Math.max(maxOff, Math.abs(offs[o + q]));
     light[L] = t.add * 255;
     light[L + 1] = (t.mul / 1.1) * 255;
+    // B: where micro-distortion may act (not within ~3px of the edge, where
+    // its jitter would reach outside the backdrop) — used by the panel lens.
+    light[L + 2] = smoothstep(1.5, 4, Math.min(sx, W - sx, sy, H - sy, t.inside / k)) * 255;
   };
 
   /* Only the rounded ends need the full maths. Along the straight middle
@@ -215,6 +218,8 @@ async function bake(W: number, H: number, s: GlassSettings, dpr: number): Promis
   const [mr, mg, mb, ml] = out;
   return { r: mr, g: mg, b: mb, light: ml, scale };
 }
+
+export { bake };
 
 /* ── A lens on one element ─────────────────────────────────────
    Builds a private filter (#<id>), keeps it baked to the element's
@@ -336,13 +341,13 @@ export function createLens(el: HTMLElement, id: string, s: GlassSettings, onRead
 }
 
 /* ── Fixed glass for the nav and its menu ──────────────────────
-   Not tied to the glass-settings panel (that styles the cards in glass
-   mode): the nav always looks the same. Playground clear-glass values,
-   with the bevel kept to the rim so the labels sit on a calm centre, and
-   no micro-noise (it would re-run on every scroll frame). Readability
-   comes from the theme tint the CSS lays over the refraction. */
+   Clear glass by default, and not tied to the glass-settings panel (that
+   styles glass mode's cards and previews on itself): the nav always looks
+   the same. Playground clear-glass values with only a whisper of blur, the
+   bevel kept to the rim so the labels sit on a calm centre, and no
+   micro-noise (it would re-run on every scroll frame). */
 export const NAV_GLASS: GlassSettings = {
-  blurAmount: 0.2,
+  blurAmount: 0.06,
   refraction: 0.82,
   chromAberration: 0.155,
   edgeHighlight: 0.05,
@@ -392,5 +397,5 @@ export function initMenuLens(panel: HTMLElement): Lens | null {
   if (!supported()) return null;
   // A list of links over busy content: heavily frosted, so only the rim
   // shows the refraction and the labels never compete with the page.
-  return createLens(panel, "menu-lens", { ...NAV_GLASS, zRadius: 14, blurAmount: 1.6 }, () => panel.classList.add("lens-on"));
+  return createLens(panel, "menu-lens", { ...NAV_GLASS, zRadius: 14, blurAmount: 0.9 }, () => panel.classList.add("lens-on"));
 }
