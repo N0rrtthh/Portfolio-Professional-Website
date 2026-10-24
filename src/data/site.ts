@@ -63,7 +63,7 @@ export const experience = [
     role: "Software Engineer & Application Developer Intern (OJT)",
     org: "BidaBoss Inc.",
     place: "Pasig City",
-    period: "Jul 2025 – Dec 2025",
+    period: "Aug 2025 – Sep 2025",
     points: [
       "Developed the BidaBoss Agent Portal, a centralized web-based franchise order management system, with React and Node.js on MySQL — now live and in use by the company.",
       "Built the BidaBoss e-commerce mobile app in Flutter with a MySQL backend: sales overview, order statuses, inventory, store and orders.",
