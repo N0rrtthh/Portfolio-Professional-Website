@@ -10,6 +10,7 @@
      · nav: hairline once scrolled, live liquid-glass lens on the pill
    ══════════════════════════════════════════════════════════ */
 import { initNavLens } from "./lens";
+import { initDialogGlass } from "./dialog-glass";
 
 (window as Window & { __eqReady?: boolean }).__eqReady = true;
 const rootEl = document.documentElement;
@@ -167,6 +168,7 @@ applyGlass(root.dataset.glass === "on");
 }
 
 initNavLens();
+initDialogGlass();
 
 /* Glass settings panel: rest the pointer on the droplet (a ring fills
    around it), long-press it on touch, or press Arrow-Down on it. A plain
