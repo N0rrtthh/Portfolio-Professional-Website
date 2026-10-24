@@ -209,6 +209,8 @@ async function bake(W: number, H: number, s: GlassSettings, dpr: number): Promis
   return { r: mr, g: mg, b: mb, light: ml, scale };
 }
 
+export { bake };
+
 export function initNavLens(): void {
   const html = document.documentElement;
   const nav = document.querySelector<HTMLElement>(".nav");
@@ -313,7 +315,10 @@ export function initNavLens(): void {
   let run = 0;
   let urls: string[] = [];
   const rebake = async () => {
-    if (!nav.classList.contains("is-scrolled")) return;
+    if (!nav.classList.contains("is-scrolled")) {
+      html.classList.remove("lens-on");
+      return;
+    }
     const { W, H } = size();
     if (W < 40 || H < 20) return;
     const s = getGlass();
