@@ -1,26 +1,11 @@
-/* ══════════════════════════════════════════════════════════
-   GLASS PANEL — live controls for the liquid glass
-   ──────────────────────────────────────────────────────────
+﻿/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+   GLASS PANEL â€” live controls for the liquid glass
+   â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
    Opened by resting the pointer on the droplet button (or a long-press /
    Arrow-Down on it). Presets plus every playground slider; changes apply
    instantly to the nav lens and, in glass mode, every card.
    Built on first open, so it costs nothing until someone asks for it.
-   ══════════════════════════════════════════════════════════ */
-import {
-  CONTROLS,
-  PRESETS,
-  PRESET_LABELS,
-  getGlass,
-  getPreset,
-  onGlass,
-  setGlass,
-  usePreset,
-  type PresetName,
-} from "./glass-config";
-
-/* ══════════════════════════════════════════════════════════
-   GLASS PANEL — live controls for the liquid glass
-   ══════════════════════════════════════════════════════════ */
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 import {
   CONTROLS,
   PRESETS,
@@ -37,7 +22,7 @@ import { bake } from "./lens";
 let panel: HTMLElement | null = null;
 let anchor: HTMLElement | null = null;
 
-/* ── Panel SVG lens (same pipeline as nav, rebaked for panel size) ── */
+/* â”€â”€ Panel SVG lens (same pipeline as nav, rebaked for panel size) â”€â”€ */
 const NS = "http://www.w3.org/2000/svg";
 const svgEl = <K extends keyof SVGElementTagNameMap>(tag: K, attrs: Record<string, string> = {}) => {
   const e = document.createElementNS(NS, tag);
@@ -170,7 +155,7 @@ function build(): HTMLElement {
     <div class="gpanel-head">
       <div>
         <p class="gpanel-title">Liquid glass</p>
-        <p class="gpanel-sub">Nav glass everywhere · every card in glass mode</p>
+        <p class="gpanel-sub">Nav glass everywhere Â· every card in glass mode</p>
       </div>
       <button type="button" class="gpanel-close" aria-label="Close glass settings">
         <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
@@ -272,3 +257,4 @@ export function closeGlassPanel(returnFocus: boolean) {
   document.removeEventListener("keydown", onEsc);
   if (returnFocus) anchor?.focus();
 }
+
