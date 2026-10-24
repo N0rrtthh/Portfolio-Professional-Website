@@ -231,15 +231,10 @@ a:hover { text-decoration-color: currentColor; }
    NAV MORPH — full-width square bar at the top, floating pill once
    the page scrolls (every theme). .nav.is-scrolled comes from site.ts.
    ══════════════════════════════════════════════════════════ */
-.nav { padding-top: 0; transition: padding-top 0.6s var(--ease-out); }
-.nav.is-scrolled { padding-top: 10px; }
-/* Cover the gap above the pill with the page background so content
-   scrolling into it doesn't show through the glass backdrop-filter. */
-.nav.is-scrolled::before {
-  content: ""; position: absolute; inset: 0 0 auto 0; height: 10px;
-  background: var(--bg);
-  pointer-events: none;
-}
+.nav { position: sticky; top: 0; z-index: 50; }
+/* Gap cover: sits behind the pill, same colour as the page bg, so
+   content scrolling into the 10px gap never shows through the glass. */
+.nav.is-scrolled { padding-top: 10px; background: var(--bg); }
 .nav .nav-inner {
   margin-inline: auto;
   max-width: 100%;
@@ -247,14 +242,13 @@ a:hover { text-decoration-color: currentColor; }
   padding-inline: max(var(--gutter), calc((100% - var(--max)) / 2 + var(--gutter)));
   background: color-mix(in srgb, var(--bg) 94%, transparent);
   border: 1px solid transparent;
-  border-bottom-color: var(--line);
+  /* no bottom border — avoids the slicing line across images */
   border-radius: 0;
   box-shadow: none;
   transition:
     max-width 0.7s var(--ease-out),
     padding 0.7s var(--ease-out),
     height 0.7s var(--ease-out),
-    margin-top 0.6s var(--ease-out),
     border-radius 0.7s var(--ease-out),
     background-color 0.5s ease,
     border-color 0.5s ease,
@@ -263,7 +257,6 @@ a:hover { text-decoration-color: currentColor; }
 .nav.is-scrolled .nav-inner {
   max-width: min(calc(var(--max) - 2 * var(--gutter)), calc(100% - 20px));
   height: 54px;
-  margin-top: 10px;
   padding-inline: 0.55rem 0.4rem;
   border-radius: 28px;
   border-color: var(--line);
@@ -370,10 +363,10 @@ a:hover { text-decoration-color: currentColor; }
 [data-glass="on"] :is(.skill-row, .fact) { border-color: rgb(255 255 255 / 0.45); }
 [data-theme="dark"][data-glass="on"] :is(.skill-row, .fact) { border-color: rgb(255 255 255 / 0.08); }
 
-/* Nav: clear-glass bar at the top, liquid pill once scrolled. The pill
-   floats over live page text, so it carries a denser fill than the clear
-   content glass — otherwise the copy behind fights the nav labels. */
-:root[data-glass="on"] .nav .nav-inner { background: var(--g-fill); border-bottom-color: rgb(255 255 255 / 0.4); }
+/* Nav: clear-glass bar at the top, liquid pill once scrolled. */
+:root[data-glass="on"] .nav { background: transparent; }
+:root[data-glass="on"] .nav.is-scrolled { background: transparent; }
+:root[data-glass="on"] .nav .nav-inner { background: var(--g-fill); border-color: transparent; }
 :root[data-glass="on"] .nav.is-scrolled .nav-inner { background: var(--g-fill-strong); box-shadow: var(--g-depth); border-color: transparent; }
 :root.liquid-ok[data-glass="on"] .nav.is-scrolled .nav-inner,
 :root.liquid-ok[data-glass="on"] .btn-ghost {

@@ -40,7 +40,7 @@ const links = [
           <Icon name="menu" class="i-open" />
           <Icon name="x" class="i-close" />
         </summary>
-        <nav class="menu-panel card" aria-label="Sections">
+        <nav class="menu-panel" aria-label="Sections">
           {links.map((l) => <a href={l.href} data-menu-link>{l.label}</a>)}
         </nav>
       </details>
@@ -100,13 +100,24 @@ const links = [
   .menu-panel a:hover { background: color-mix(in srgb, var(--accent) 10%, var(--surface-2)); color: var(--accent); }
   /* liquid glass override for menu-panel */
   :global([data-glass="on"]) .menu-panel {
-    background: color-mix(in srgb, var(--surface) 40%, transparent);
-    border-color: rgb(255 255 255 / 0.25);
-    box-shadow: var(--g-depth, 0 8px 32px -8px rgb(0 0 0 / 0.22));
+    background: color-mix(in srgb, var(--surface) 35%, transparent);
+    border-color: rgb(255 255 255 / 0.3);
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.8),
+      inset 1px 0 0 rgb(255 255 255 / 0.2),
+      inset -1px 0 0 rgb(255 255 255 / 0.1),
+      0 8px 32px -8px rgb(20 20 40 / 0.3);
+  }
+  :global([data-theme="dark"][data-glass="on"]) .menu-panel {
+    background: color-mix(in srgb, var(--surface) 30%, transparent);
+    border-color: rgb(255 255 255 / 0.12);
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.22),
+      0 8px 32px -8px rgb(0 0 0 / 0.6);
   }
   :global(.lens-on) .menu-panel {
-    -webkit-backdrop-filter: url(#nav-lens) blur(16px) saturate(1.6);
-    backdrop-filter: url(#nav-lens) blur(16px) saturate(1.6);
+    -webkit-backdrop-filter: blur(24px) saturate(1.8);
+    backdrop-filter: blur(24px) saturate(1.8);
   }
 
   @media (max-width: 1000px) {
