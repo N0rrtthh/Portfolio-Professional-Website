@@ -394,7 +394,7 @@ a:hover { text-decoration-color: currentColor; }
 /* ══════════════════════════════════════════════════════════
    NAV LENS (html.lens-on, scripts/lens.ts) — the nav bar and the floating
    pill refract the live page behind them in light, dark and glass mode,
-   with their own fixed settings (not the glass-settings panel). All lighting
+   styled live by the glass-settings panel (the panel itself is frosted). All lighting
    (specular, fresnel, rim) is inside the SVG filter, ported from the
    glass shader, so the pill itself is just a clear, shaped window; the
    drop shadow comes from the same settings (--lens-shadow, set by JS).
@@ -406,6 +406,8 @@ a:hover { text-decoration-color: currentColor; }
   -webkit-backdrop-filter: url(#nav-lens) !important;
   backdrop-filter: url(#nav-lens) !important;
 }
+/* The pill follows the panel's corner radius (capped to a full pill). */
+:root.lens-on .nav.is-scrolled .nav-inner { border-radius: min(var(--glass-r, 40px), 27px) !important; }
 :root.lens-on .nav .nav-inner::before,
 :root.lens-on .nav .nav-inner::after { display: none !important; }
 

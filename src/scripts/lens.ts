@@ -19,12 +19,7 @@
    changes. Chromium only (html.liquid-ok); other browsers keep the CSS
    frosted glass.
    ══════════════════════════════════════════════════════════ */
-import { PRESETS, type GlassSettings } from "./glass-config";
-
-/* The nav's own glass: always the default Clear look. Deliberately not the
-   visitor's glass-settings (those style the cards in glass mode), so the
-   panel can never change the nav. */
-const NAV_GLASS: GlassSettings = { ...PRESETS.clear };
+import { getGlass, onGlass, type GlassSettings } from "./glass-config";
 
 const NS = "http://www.w3.org/2000/svg";
 
@@ -324,9 +319,11 @@ export function initNavLens(): void {
     // the top of the page or the floating pill once scrolled.
     const { W, H } = size();
     if (W < 40 || H < 20) return;
+    // Settings from the glass panel; the corner radius is the nav's own
+    // current shape (square bar, or the pill rounded by --glass-r).
     const r = parseFloat(getComputedStyle(inner).borderTopLeftRadius) || 0;
-    const s = { ...NAV_GLASS, cornerRadius: r };
-    const key = `${W}x${H}r${Math.round(r)}@${dpr()}`;
+    const s = { ...getGlass(), cornerRadius: r };
+    const key = `${W}x${H}r${Math.round(r)}@${dpr()}|${s.zRadius},${s.refraction},${s.chromAberration},${s.edgeHighlight},${s.specular},${s.fresnel},${s.bevelMode}`;
     if (key === baked) return;
     baked = key;
     const mine = ++run;
@@ -352,7 +349,13 @@ export function initNavLens(): void {
     timer = window.setTimeout(() => void rebake(), delay);
   };
 
-  applyCheap(NAV_GLASS);
+  applyCheap(getGlass());
+  // Panel edits apply live (the pill's radius change re-bakes via the
+  // resize/class observers too).
+  onGlass((s) => {
+    applyCheap(s);
+    schedule(30);
+  });
   new ResizeObserver(() => schedule(160)).observe(inner);
   // Bar ↔ pill morphs (0.7s): the resize observer keeps pushing the bake
   // back until the new shape has settled; meanwhile the old maps stretch.

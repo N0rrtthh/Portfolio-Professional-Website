@@ -3,8 +3,8 @@
    ──────────────────────────────────────────────────────────
    Opened by resting the pointer on the droplet button (or a long-press /
    Arrow-Down on it). Presets plus every playground slider; changes apply
-   instantly to every card in glass mode. The nav is not affected — it
-   keeps its own fixed glass. The panel itself is simple frosted CSS.
+   instantly to the nav glass (bar and pill, every mode) and, in glass
+   mode, every card. The panel itself is simple frosted CSS.
    Built on first open, so it costs nothing until someone asks for it.
    ══════════════════════════════════════════════════════════ */
 import {
@@ -46,7 +46,7 @@ function build(): HTMLElement {
     <div class="gpanel-head">
       <div>
         <p class="gpanel-title">Liquid glass</p>
-        <p class="gpanel-sub">Applies to every card in glass mode</p>
+        <p class="gpanel-sub">Nav glass everywhere · every card in glass mode</p>
       </div>
       <button type="button" class="gpanel-close" aria-label="Close glass settings">
         <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
