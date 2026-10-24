@@ -24,8 +24,9 @@ const links = [
     </nav>
 
     <div class="nav-actions">
-      <button class="icon-btn glass-btn" type="button" data-glass-toggle aria-pressed="false" aria-label="Turn on liquid glass style" title="Liquid glass">
+      <button class="icon-btn glass-btn" type="button" data-glass-toggle aria-pressed="false" aria-label="Turn on liquid glass style" aria-keyshortcuts="ArrowDown" aria-describedby="glass-hint">
         <Icon name="droplet" />
+        <span id="glass-hint" class="sr-only">Hover, long-press or press Arrow Down for glass settings</span>
       </button>
       <button class="icon-btn theme-btn" type="button" data-theme-toggle aria-label="Switch theme">
         <Icon name="moon" class="i-moon" />

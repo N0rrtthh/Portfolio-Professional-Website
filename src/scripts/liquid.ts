@@ -20,37 +20,22 @@
    If WebGL or the library fails, everything stays on the CSS glass.
    ══════════════════════════════════════════════════════════ */
 import { LiquidGlass } from "../vendor/liquidglass/index.js";
+import { getGlass, onGlass } from "./glass-config";
 
-/* The settings from the reference playground ("clear glass"). */
-const SETTINGS = {
-  blurAmount: 0.14,
-  refraction: 0.82,
-  chromAberration: 0.155,
-  edgeHighlight: 0.05,
-  specular: 0.25,
-  fresnel: 0.48,
-  distortion: 0.49,
-  cornerRadius: 40,
-  zRadius: 36,
-  opacity: 1,
-  saturation: 0.44,
-  brightness: 0.1,
-  shadowOpacity: 0.21,
-  shadowSpread: 12,
-  bevelMode: 0,
-};
+/* Settings are shared with the nav lens and edited live from the glass
+   panel (glass-config.ts). */
 
 /* Fox palette: cream → peach → fox orange → rust. No rainbow. */
 type Blob = { c: string; a: number; r: number; x: number; y: number; fx: number; fy: number; ph: number };
 const PALETTE = {
   light: {
-    base: ["#fbf3ec", "#fde7d6"],
+    base: ["#fbf8f5", "#f3eee9"],
     blobs: [
-      { c: "255,138,76", a: 0.75, r: 0.55, x: 0.18, y: 0.2, fx: 0.07, fy: 0.05, ph: 0 },
-      { c: "240,90,34", a: 0.55, r: 0.42, x: 0.82, y: 0.3, fx: 0.05, fy: 0.08, ph: 1.7 },
-      { c: "255,196,150", a: 0.85, r: 0.6, x: 0.55, y: 0.85, fx: 0.06, fy: 0.04, ph: 3.1 },
-      { c: "194,65,12", a: 0.32, r: 0.38, x: 0.35, y: 0.6, fx: 0.08, fy: 0.06, ph: 4.4 },
-      { c: "255,224,200", a: 0.9, r: 0.5, x: 0.7, y: 0.05, fx: 0.04, fy: 0.07, ph: 5.6 },
+      { c: "242,101,34", a: 0.36, r: 0.42, x: 0.14, y: 0.22, fx: 0.07, fy: 0.05, ph: 0 },
+      { c: "255,158,110", a: 0.32, r: 0.5, x: 0.86, y: 0.18, fx: 0.05, fy: 0.08, ph: 1.7 },
+      { c: "194,65,12", a: 0.16, r: 0.36, x: 0.4, y: 0.78, fx: 0.08, fy: 0.06, ph: 4.4 },
+      { c: "251,248,245", a: 0.85, r: 0.46, x: 0.62, y: 0.52, fx: 0.06, fy: 0.04, ph: 3.1 },
+      { c: "38,34,32", a: 0.07, r: 0.5, x: 0.92, y: 0.92, fx: 0.04, fy: 0.07, ph: 5.6 },
     ] as Blob[],
   },
   dark: {
@@ -86,7 +71,11 @@ export async function startLiquid(): Promise<() => void> {
      position:fixed inside it, so it stays put like a wallpaper. */
   const back = el("div", "lg-stage lg-back", "position:absolute;inset:0;z-index:-1;pointer-events:none;");
   back.setAttribute("aria-hidden", "true");
-  const bgBack = el("canvas", "lg-bg", "position:fixed;z-index:0;inset:0;width:100%;height:100%;");
+  // The canvas reaches 60vh past both viewport edges: cards about to scroll
+  // in are already rendered against real colour, so a fast fling never
+  // shows a plate's blank first render.
+  const OVER = 0.6;
+  const bgBack = el("canvas", "lg-bg", `position:fixed;z-index:0;left:0;width:100%;top:-${OVER * 100}vh;height:${(1 + OVER * 2) * 100}vh;`);
   back.append(bgBack);
 
   const targets = Array.from(document.querySelectorAll<HTMLElement>(CARD_TARGETS));
@@ -103,7 +92,7 @@ export async function startLiquid(): Promise<() => void> {
   let back$: LiquidGlass | null = null;
   const size = () => {
     const w = Math.max(160, Math.ceil(innerWidth / 6));
-    const h = Math.max(120, Math.ceil(innerHeight / 6));
+    const h = Math.max(120, Math.ceil((innerHeight * (1 + OVER * 2)) / 6));
     if (bgBack.width !== w || bgBack.height !== h) {
       bgBack.width = w;
       bgBack.height = h;
@@ -119,10 +108,12 @@ export async function startLiquid(): Promise<() => void> {
     g1.globalCompositeOperation = "source-over";
     g1.fillStyle = lg;
     g1.fillRect(0, 0, w, h);
-    const m = Math.max(w, h);
+    // Blobs are laid out over the visible band (the middle of the canvas).
+    const vh = h / (1 + OVER * 2);
+    const m = Math.max(w, vh);
     for (const b of pal.blobs) {
       const x = (b.x + Math.sin(t * b.fx + b.ph) * 0.18) * w;
-      const y = (b.y + Math.cos(t * b.fy + b.ph * 1.3) * 0.16) * h;
+      const y = OVER * vh + (b.y + Math.cos(t * b.fy + b.ph * 1.3) * 0.16) * vh;
       const r = b.r * m * (1 + Math.sin(t * 0.05 + b.ph) * 0.12);
       const rg = g1.createRadialGradient(x, y, 0, x, y, r);
       rg.addColorStop(0, `rgba(${b.c},${b.a})`);
@@ -143,11 +134,10 @@ export async function startLiquid(): Promise<() => void> {
      transformed rect: the library keeps a GPU framebuffer per distinct
      glass size, so sizes that change every frame would allocate buffers
      every frame. Styles are written only when they actually change. */
-  const applyConfig = (plate: HTMLElement, w: number, h: number, radius: number) => {
+  const applyConfig = (plate: HTMLElement, w: number, h: number) => {
     const cfg = {
-      ...SETTINGS,
-      cornerRadius: Math.round(Math.min(radius, h / 2, w / 2)),
-      zRadius: Math.round(Math.min(SETTINGS.zRadius, h / 2 - 2)),
+      ...getGlass(),
+      cornerRadius: Math.round(Math.min(getGlass().cornerRadius, h / 2, w / 2)),
     };
     const json = JSON.stringify(cfg);
     if (plate.dataset.config !== json) plate.dataset.config = json;
@@ -162,15 +152,6 @@ export async function startLiquid(): Promise<() => void> {
     if (st.top !== T) st.top = T;
     if (st.width !== W) st.width = W;
     if (st.height !== H) st.height = H;
-  };
-  const radiusOf = new WeakMap<Element, number>();
-  const radius = (e: HTMLElement) => {
-    let r = radiusOf.get(e);
-    if (r === undefined) {
-      r = parseFloat(getComputedStyle(e).borderTopLeftRadius) || 0;
-      radiusOf.set(e, r);
-    }
-    return r;
   };
 
   /* A card gets its plate once its reveal animation has finished (so the
@@ -201,7 +182,7 @@ export async function startLiquid(): Promise<() => void> {
       const w = card.offsetWidth;
       const h = card.offsetHeight;
       setBox(plate, r.left + scrollX + (r.width - w) / 2, r.top + scrollY + (r.height - h) / 2, w, h);
-      applyConfig(plate, w, h, radius(card));
+      applyConfig(plate, w, h);
       card.classList.add("lg-backed");
     });
   };
@@ -236,12 +217,14 @@ export async function startLiquid(): Promise<() => void> {
     scheduleCards(80);
   };
   addEventListener("resize", onResize);
+  // Panel edits: the library re-renders a plate when its data-config changes.
+  const offGlass = onGlass(() => syncCards());
   const themeObs = new MutationObserver(() => paint((performance.now() - start) / 1000));
   themeObs.observe(html, { attributes: true, attributeFilter: ["data-theme"] });
 
   syncCards();
   try {
-    back$ = await LiquidGlass.init({ root: back, glassElements: plates, defaults: SETTINGS });
+    back$ = await LiquidGlass.init({ root: back, glassElements: plates, defaults: getGlass() });
     html.classList.add("lg-live");
   } catch (err) {
     console.warn("[glass] WebGL glass unavailable — using CSS glass", err);
@@ -257,6 +240,7 @@ export async function startLiquid(): Promise<() => void> {
     revealObs.disconnect();
     removeEventListener("resize", onResize);
     themeObs.disconnect();
+    offGlass();
     back$?.destroy();
     back.remove();
     targets.forEach((c) => c.classList.remove("lg-backed"));

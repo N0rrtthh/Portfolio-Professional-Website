@@ -375,7 +375,7 @@ a:hover { text-decoration-color: currentColor; }
 /* The glass stage spans the whole document (inset:0 against <html>). */
 :root[data-glass="on"] { position: relative; }
 /* Cards that can be glass-backed use the reference corner radius (40). */
-[data-glass="on"] :is(.sheet, .proj, .cert, .skill-table, .gh, .stat, .cta) { border-radius: 40px; }
+[data-glass="on"] :is(.sheet, .proj, .cert, .skill-table, .gh, .stat, .cta) { border-radius: var(--glass-r, 40px); }
 [data-glass="on"] .proj .media { border-radius: 0; }
 /* Elements with a refracting plate under them go fully transparent so
    the shader output shows and their text sits crisp on top. */
@@ -392,36 +392,77 @@ a:hover { text-decoration-color: currentColor; }
 
 /* ══════════════════════════════════════════════════════════
    NAV LENS (html.lens-on, scripts/lens.ts) — the floating pill refracts
-   the live page behind it, in light, dark and glass mode alike.
-   Clear glass: a light tint keeps the labels readable over body copy;
-   the rim does the talking (specular top edge, fresnel ring, soft
-   drop shadow — the playground's specular 0.25 / fresnel 0.48 /
-   shadow 0.21·12).
+   the live page behind it in light, dark and glass mode. All lighting
+   (specular, fresnel, rim) is inside the SVG filter, ported from the
+   glass shader, so the pill itself is just a clear, shaped window; the
+   drop shadow comes from the same settings (--lens-shadow, set by JS).
    ══════════════════════════════════════════════════════════ */
-:root {
-  --lens-fill: rgb(255 255 255 / 0.6);
-  --lens-shadow:
-    inset 0 1px 0.5px rgb(255 255 255 / 0.9),
-    inset 0 -1px 0.5px rgb(255 255 255 / 0.45),
-    inset 0 0 0 1px rgb(255 255 255 / 0.35),
-    inset 0 0 18px -4px rgb(255 255 255 / 0.55),
-    0 1px 2px rgb(20 20 20 / 0.06),
-    0 12px 28px -12px rgb(20 20 20 / 0.32);
-}
-[data-theme="dark"] {
-  --lens-fill: rgb(24 25 29 / 0.6);
-  --lens-shadow:
-    inset 0 1px 0.5px rgb(255 255 255 / 0.28),
-    inset 0 -1px 0.5px rgb(255 255 255 / 0.1),
-    inset 0 0 0 1px rgb(255 255 255 / 0.08),
-    inset 0 0 18px -4px rgb(255 255 255 / 0.1),
-    0 1px 2px rgb(0 0 0 / 0.4),
-    0 14px 30px -12px rgb(0 0 0 / 0.75);
-}
 :root.lens-on .nav.is-scrolled .nav-inner {
-  background: var(--lens-fill) !important;
+  background: transparent !important;
   border-color: transparent !important;
-  box-shadow: var(--lens-shadow) !important;
-  -webkit-backdrop-filter: url(#nav-lens) saturate(1.44) !important;
-  backdrop-filter: url(#nav-lens) saturate(1.44) !important;
+  border-radius: min(var(--glass-r, 40px), 27px) !important;
+  box-shadow: var(--lens-shadow, none) !important;
+  -webkit-backdrop-filter: url(#nav-lens) !important;
+  backdrop-filter: url(#nav-lens) !important;
+}
+:root.lens-on .nav.is-scrolled .nav-inner::before,
+:root.lens-on .nav.is-scrolled .nav-inner::after { display: none !important; }
+
+/* ── Droplet: hover-hold ring → glass settings ──────────────── */
+@property --arm { syntax: "<number>"; inherits: false; initial-value: 0; }
+.glass-btn { position: relative; }
+.glass-btn::after {
+  content: ""; position: absolute; inset: -4px; border-radius: 50%; pointer-events: none;
+  background: conic-gradient(var(--accent) calc(var(--arm) * 1turn), transparent 0);
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 2px));
+  mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 2px));
+  opacity: 0; transition: opacity 0.2s ease;
+}
+.glass-btn.is-arming::after { opacity: 1; animation: glass-arm var(--arm-ms, 1200ms) linear forwards; }
+@keyframes glass-arm { from { --arm: 0; } to { --arm: 1; } }
+
+/* ── Glass settings panel (scripts/glass-panel.ts) ──────────── */
+.gpanel {
+  position: fixed; z-index: 60; width: min(360px, calc(100vw - 24px));
+  max-height: min(72vh, 660px); overflow: auto; overscroll-behavior: contain;
+  padding: 14px 16px 12px; border-radius: 20px; color: var(--ink);
+  background: color-mix(in srgb, var(--surface) 90%, transparent);
+  -webkit-backdrop-filter: blur(18px) saturate(1.4); backdrop-filter: blur(18px) saturate(1.4);
+  border: 1px solid var(--line); box-shadow: var(--shadow-lg);
+  opacity: 0; transform: translateY(-6px) scale(0.98); transform-origin: top right;
+  transition: opacity 0.22s ease, transform 0.35s var(--ease-out);
+  scrollbar-width: thin;
+}
+.gpanel.is-open { opacity: 1; transform: none; }
+.gpanel[hidden] { display: none; }
+.gpanel-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 0.75rem; margin-bottom: 0.75rem; }
+.gpanel-title { font-weight: 650; font-size: 0.95rem; letter-spacing: -0.01em; }
+.gpanel-sub { font-size: 0.72rem; color: var(--muted); margin-top: 2px; }
+.gpanel-close {
+  display: grid; place-items: center; width: 30px; height: 30px; flex: none; border-radius: 50%;
+  border: 1px solid var(--line); background: var(--surface); color: var(--ink-2); cursor: pointer;
+}
+.gpanel-close:hover { color: var(--ink); border-color: var(--line-strong); }
+.gpanel-presets { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; padding: 4px; border-radius: 12px; background: var(--surface-2); margin-bottom: 0.7rem; }
+.gpanel-preset {
+  border: 0; background: transparent; padding: 0.45rem 0.4rem; border-radius: 9px; cursor: pointer;
+  font: inherit; font-size: 0.8rem; font-weight: 560; color: var(--ink-2);
+  transition: background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+}
+.gpanel-preset:hover { color: var(--ink); }
+.gpanel-preset[aria-pressed="true"] { background: var(--surface); color: var(--ink); box-shadow: var(--shadow-sm); }
+.gpanel-row { display: grid; grid-template-columns: 7.4rem 1fr 3rem; align-items: center; gap: 0.6rem; min-height: 28px; }
+.gpanel-row label { font-size: 0.78rem; color: var(--ink-2); }
+.gpanel-row output { font-family: var(--font-mono); font-size: 0.7rem; color: var(--muted); text-align: right; }
+.gpanel-row input[type="range"] { width: 100%; min-width: 0; margin: 0; accent-color: var(--accent); cursor: pointer; }
+.gpanel-foot { display: flex; justify-content: space-between; align-items: center; gap: 0.75rem; margin-top: 0.65rem; padding-top: 0.65rem; border-top: 1px solid var(--line); }
+.gpanel-state { font-size: 0.72rem; color: var(--muted); }
+.gpanel-reset {
+  font: inherit; font-size: 0.76rem; font-weight: 560; padding: 0.35rem 0.75rem; border-radius: 999px; cursor: pointer;
+  border: 1px solid var(--line); background: var(--surface); color: var(--ink-2);
+}
+.gpanel-reset:hover { color: var(--ink); border-color: var(--line-strong); }
+.gpanel :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+@media (max-width: 420px) {
+  .gpanel-row { grid-template-columns: 6.4rem 1fr 2.6rem; gap: 0.45rem; }
 }

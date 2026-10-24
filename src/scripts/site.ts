@@ -168,8 +168,67 @@ applyGlass(root.dataset.glass === "on");
 
 initNavLens();
 
+/* Glass settings panel: rest the pointer on the droplet (a ring fills
+   around it), long-press it on touch, or press Arrow-Down on it. A plain
+   click still just toggles glass mode. */
+let glassHeld = false;
+{
+  const HOVER_MS = 1200;
+  const PRESS_MS = 550;
+  let timer = 0;
+  const open = async (btn: HTMLElement, focus = false) => {
+    btn.classList.remove("is-arming");
+    const { openGlassPanel } = await import("./glass-panel");
+    openGlassPanel(btn, focus);
+  };
+  document.querySelectorAll<HTMLButtonElement>("[data-glass-toggle]").forEach((btn) => {
+    btn.setAttribute("aria-haspopup", "dialog");
+    btn.setAttribute("aria-expanded", "false");
+    const cancel = () => {
+      clearTimeout(timer);
+      btn.classList.remove("is-arming");
+    };
+    const arm = (ms: number, then: () => void) => {
+      cancel();
+      btn.classList.add("is-arming");
+      btn.style.setProperty("--arm-ms", `${ms}ms`);
+      timer = window.setTimeout(then, ms);
+    };
+    btn.addEventListener("pointerenter", (e) => {
+      if (e.pointerType === "mouse") arm(HOVER_MS, () => void open(btn));
+    });
+    btn.addEventListener("pointerleave", cancel);
+    btn.addEventListener("pointercancel", cancel);
+    btn.addEventListener("pointerdown", (e) => {
+      if (e.pointerType === "mouse") return cancel();
+      arm(PRESS_MS, () => {
+        glassHeld = true;
+        void open(btn);
+      });
+    });
+    btn.addEventListener("pointerup", (e) => {
+      if (e.pointerType === "mouse") return;
+      cancel();
+      // The tap that ends a long-press must not also toggle glass mode.
+      if (glassHeld) setTimeout(() => (glassHeld = false), 450);
+    });
+    btn.addEventListener("contextmenu", (e) => {
+      if (glassHeld || btn.classList.contains("is-arming")) e.preventDefault();
+    });
+    btn.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowDown") {
+        e.preventDefault();
+        void open(btn, true);
+      }
+    });
+  });
+}
+
 document.querySelectorAll<HTMLButtonElement>("[data-glass-toggle]").forEach((btn) => {
-  btn.addEventListener("click", () => revealFrom(btn, () => applyGlass(root.dataset.glass !== "on")));
+  btn.addEventListener("click", () => {
+    if (glassHeld) return;
+    revealFrom(btn, () => applyGlass(root.dataset.glass !== "on"));
+  });
 });
 
 /* ── Case-study dialogs ───────────────────────────────────── */
