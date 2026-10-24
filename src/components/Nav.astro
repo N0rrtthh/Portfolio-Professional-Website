@@ -32,20 +32,21 @@ const links = [
         <Icon name="moon" class="i-moon" />
         <Icon name="sun" class="i-sun" />
       </button>
-      <a class="btn btn-primary btn-sm nav-resume" href={`${base}${profile.resumeFile}`} download aria-label="Download résumé (PDF)">
+      <a class="btn btn-primary btn-sm nav-resume" href={`${base}${profile.resumeFile}`} download aria-label="Download Resume (PDF)">
         <Icon name="download" /> <span>Resume</span>
       </a>
-      <details class="menu">
-        <summary class="icon-btn" aria-label="Open section menu">
-          <Icon name="menu" class="i-open" />
-          <Icon name="x" class="i-close" />
-        </summary>
-        <nav class="menu-panel" aria-label="Sections">
-          {links.map((l) => <a href={l.href} data-menu-link>{l.label}</a>)}
-        </nav>
-      </details>
+      <button class="icon-btn menu-btn" type="button" data-menu-btn popovertarget="site-menu" aria-controls="site-menu" aria-expanded="false" aria-label="Section menu">
+        <Icon name="menu" class="i-open" />
+        <Icon name="x" class="i-close" />
+      </button>
     </div>
   </div>
+  <!-- A popover renders in the top layer, outside the nav pill, so its own
+       glass can see the page behind it (a backdrop filter nested inside the
+       pill's would only see the pill). -->
+  <nav id="site-menu" class="menu-panel" popover aria-label="Sections">
+    {links.map((l) => <a href={l.href} data-menu-link>{l.label}</a>)}
+  </nav>
 </header>
 
 <style>
@@ -71,58 +72,49 @@ const links = [
   :global([data-theme="dark"]) .theme-btn :global(.i-sun) { display: block; }
   :global([data-theme="dark"]) .theme-btn :global(.i-moon) { display: none; }
 
-  /* ── Hamburger menu ── */
-  .menu { position: relative; display: none; }
-  .menu summary { list-style: none; cursor: pointer; }
-  .menu summary::-webkit-details-marker { display: none; }
-  .menu :global(.i-close) { display: none; }
-  .menu[open] :global(.i-close) { display: block; }
-  .menu[open] :global(.i-open) { display: none; }
+  /* ── Section menu (popover) ── */
+  .menu-btn { display: none; }
+  .menu-btn :global(.i-close) { display: none; }
+  .menu-btn.is-open :global(.i-close) { display: block; }
+  .menu-btn.is-open :global(.i-open) { display: none; }
   .menu-panel {
-    position: absolute; right: 0; top: calc(100% + 10px);
-    min-width: 200px; padding: 0.5rem;
-    display: grid;
-    /* glass treatment */
-    background: color-mix(in srgb, var(--surface) 85%, transparent);
-    -webkit-backdrop-filter: blur(20px) saturate(1.6);
-    backdrop-filter: blur(20px) saturate(1.6);
+    /* Reset the UA popover box; site.ts sets --menu-top/--menu-right
+       so the panel hangs under the right end of the bar / pill. */
+    position: fixed; inset: auto; margin: 0;
+    top: var(--menu-top, 70px); right: var(--menu-right, 10px);
+    width: min(240px, calc(100vw - 20px)); padding: 0.45rem;
+    display: none; gap: 2px; overflow: visible;
+    color: var(--ink);
+    background: color-mix(in srgb, var(--surface) 86%, transparent);
+    -webkit-backdrop-filter: blur(20px) saturate(1.5);
+    backdrop-filter: blur(20px) saturate(1.5);
     border: 1px solid var(--line);
     border-radius: 18px;
-    box-shadow: 0 8px 32px -8px rgb(0 0 0 / 0.22), 0 2px 8px rgb(0 0 0 / 0.08);
-    animation: menu-in 0.22s var(--ease-out);
+    box-shadow: 0 10px 32px -10px rgb(0 0 0 / 0.28), 0 2px 8px rgb(0 0 0 / 0.08);
   }
+  /* Separate rules: an unknown :popover-open must not void the fallback. */
+  .menu-panel:popover-open { display: grid; animation: menu-in 0.24s var(--ease-out); }
+  .menu-panel.is-open { display: grid; animation: menu-in 0.24s var(--ease-out); }
   @keyframes menu-in { from { opacity: 0; transform: translateY(-6px) scale(0.97); } }
+  /* Liquid glass (lens.ts → #menu-lens), every theme and mode. */
+  .menu-panel:global(.lens-on) {
+    background: var(--lens-tint-strong);
+    border-color: transparent;
+    box-shadow: var(--lens-shadow);
+    -webkit-backdrop-filter: url(#menu-lens);
+    backdrop-filter: url(#menu-lens);
+  }
   .menu-panel a {
-    padding: 0.75rem 0.9rem; border-radius: 10px;
-    text-decoration: none; font-weight: 500; font-size: 0.95rem;
+    display: flex; align-items: center; min-height: 46px; padding: 0 0.9rem; border-radius: 12px;
+    text-decoration: none; font-weight: 550; font-size: 0.98rem; color: var(--ink);
     transition: background-color 0.15s ease, color 0.15s ease;
   }
-  .menu-panel a:hover { background: color-mix(in srgb, var(--accent) 10%, var(--surface-2)); color: var(--accent); }
-  /* liquid glass override for menu-panel */
-  :global([data-glass="on"]) .menu-panel {
-    background: color-mix(in srgb, var(--surface) 35%, transparent);
-    border-color: rgb(255 255 255 / 0.3);
-    box-shadow:
-      inset 0 1px 0 rgb(255 255 255 / 0.8),
-      inset 1px 0 0 rgb(255 255 255 / 0.2),
-      inset -1px 0 0 rgb(255 255 255 / 0.1),
-      0 8px 32px -8px rgb(20 20 40 / 0.3);
-  }
-  :global([data-theme="dark"][data-glass="on"]) .menu-panel {
-    background: color-mix(in srgb, var(--surface) 30%, transparent);
-    border-color: rgb(255 255 255 / 0.12);
-    box-shadow:
-      inset 0 1px 0 rgb(255 255 255 / 0.22),
-      0 8px 32px -8px rgb(0 0 0 / 0.6);
-  }
-  :global(.lens-on) .menu-panel {
-    -webkit-backdrop-filter: blur(24px) saturate(1.8);
-    backdrop-filter: blur(24px) saturate(1.8);
-  }
+  .menu-panel a:hover, .menu-panel a:focus-visible { background: color-mix(in srgb, var(--accent) 12%, transparent); color: var(--accent); }
+  .menu-panel a:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
 
   @media (max-width: 1000px) {
     .nav-links { display: none; }
-    .menu { display: block; }
+    .menu-btn { display: inline-grid; }
   }
   @media (max-width: 600px) {
     .nav-inner { gap: 0.5rem; }

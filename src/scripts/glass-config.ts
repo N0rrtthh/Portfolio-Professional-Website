@@ -1,10 +1,12 @@
 /* ══════════════════════════════════════════════════════════
-   GLASS SETTINGS — one shared set of liquid-glass parameters
+   GLASS SETTINGS — the look of glass mode's cards
    ──────────────────────────────────────────────────────────
    Same names, ranges and meaning as the @ybouane/liquidglass playground
-   (liquid-glass.ybouane.com). Used by the nav lens (lens.ts, every mode)
-   and the WebGL cards (liquid.ts, glass mode). Edited live from the
-   settings panel (glass-panel.ts) and remembered per visitor.
+   (liquid-glass.ybouane.com). Used by the WebGL cards (liquid.ts) in glass
+   mode, edited live from the settings panel (glass-panel.ts) and
+   remembered per visitor.
+   The nav and its menu are deliberately NOT tied to these: they keep
+   their own fixed glass (lens.ts → NAV_GLASS) in every theme and mode.
    ══════════════════════════════════════════════════════════ */
 
 export type GlassSettings = {
@@ -29,26 +31,26 @@ export type PresetName = "clear" | "frosted" | "dark";
 /* Clear: the playground settings this site was tuned with. Frosted and
    Dark apply the library's own Frosted / Dark Glass overrides on top. */
 const CLEAR: GlassSettings = {
-  blurAmount: 0.06,
-  refraction: 0.69,
-  chromAberration: 0.05,
+  blurAmount: 0.14,
+  refraction: 0.82,
+  chromAberration: 0.155,
   edgeHighlight: 0.05,
-  specular: 0,
-  fresnel: 1,
-  distortion: 0,
+  specular: 0.25,
+  fresnel: 0.48,
+  distortion: 0.49,
   cornerRadius: 40,
-  zRadius: 40,
+  zRadius: 36,
   opacity: 1,
-  saturation: 0,
-  brightness: 0,
-  shadowOpacity: 0.3,
-  shadowSpread: 10,
+  saturation: 0.44,
+  brightness: 0.1,
+  shadowOpacity: 0.21,
+  shadowSpread: 12,
   bevelMode: 0,
 };
 export const PRESETS: Record<PresetName, GlassSettings> = {
   clear: CLEAR,
-  frosted: { ...CLEAR, blurAmount: 0.25, refraction: 0.5 },
-  dark: { ...CLEAR, blurAmount: 0.25, refraction: 0.5, brightness: -0.3 },
+  frosted: { ...CLEAR, blurAmount: 0.25 },
+  dark: { ...CLEAR, blurAmount: 0.25, brightness: -0.3 },
 };
 export const PRESET_LABELS: Record<PresetName, string> = { clear: "Clear", frosted: "Frosted", dark: "Dark" };
 
@@ -71,7 +73,8 @@ export const CONTROLS: { key: keyof GlassSettings; label: string; min: number; m
   { key: "bevelMode", label: "Bevel Mode", min: 0, max: 1, step: 1 },
 ];
 
-const KEY = "eq-glass-cfg";
+// v2: settings saved before the nav was unlinked are discarded.
+const KEY = "eq-glass-cfg-v2";
 type Stored = { preset: PresetName | "custom"; values: GlassSettings };
 
 function load(): Stored {
@@ -96,8 +99,7 @@ let state = load();
 const listeners = new Set<(s: GlassSettings) => void>();
 const html = document.documentElement;
 
-/* Page-level side effect of the settings: the corner radius the nav pill
-   and the glass cards share. */
+/* Page-level side effect of the settings: the glass cards' corner radius. */
 function reflect(s: GlassSettings) {
   html.style.setProperty("--glass-r", `${s.cornerRadius}px`);
 }

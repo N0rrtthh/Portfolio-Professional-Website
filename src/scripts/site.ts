@@ -7,10 +7,9 @@
      · project case studies (<dialog>) — fallback for browsers without
        the `commandfor` invoker attribute
      · copy-email button
-     · nav: hairline once scrolled, live liquid-glass lens on the pill
+     · nav: bar → pill once scrolled, live liquid glass on it and its menu
    ══════════════════════════════════════════════════════════ */
-import { initNavLens } from "./lens";
-import { initDialogGlass } from "./dialog-glass";
+import { initNavLens, initMenuLens } from "./lens";
 
 (window as Window & { __eqReady?: boolean }).__eqReady = true;
 const rootEl = document.documentElement;
@@ -168,7 +167,6 @@ applyGlass(root.dataset.glass === "on");
 }
 
 initNavLens();
-initDialogGlass();
 
 /* Glass settings panel: rest the pointer on the droplet (a ring fills
    around it), long-press it on touch, or press Arrow-Down on it. A plain
@@ -296,14 +294,73 @@ if (nav) {
   }
 }
 
-/* ── Mobile menu: close after picking a section ───────────── */
-document.querySelectorAll<HTMLAnchorElement>("[data-menu-link]").forEach((a) => {
-  a.addEventListener("click", () => a.closest("details")?.removeAttribute("open"));
-});
-document.addEventListener("click", (e) => {
-  const menu = document.querySelector<HTMLDetailsElement>("details.menu[open]");
-  if (menu && !menu.contains(e.target as Node)) menu.removeAttribute("open");
-});
+/* ── Section menu ─────────────────────────────────────────────
+   A popover (top layer: light-dismiss and Esc for free) hung under the
+   right end of the nav, following it through the bar → pill morph while
+   open. Liquid glass is baked the first time it opens. Browsers without
+   popover get a small class-toggle fallback. */
+{
+  const btn = document.querySelector<HTMLButtonElement>("[data-menu-btn]");
+  const menu = document.getElementById("site-menu");
+  const bar = document.querySelector<HTMLElement>(".nav .nav-inner");
+  if (btn && menu && bar) {
+    const canPop = typeof menu.showPopover === "function";
+    let lens: ReturnType<typeof initMenuLens> | undefined;
+    let raf = 0;
+    const place = () => {
+      const r = bar.getBoundingClientRect();
+      menu.style.setProperty("--menu-top", `${Math.round(r.bottom + 8)}px`);
+      menu.style.setProperty("--menu-right", `${Math.round(Math.max(10, innerWidth - r.right))}px`);
+    };
+    const follow = () => {
+      place();
+      raf = requestAnimationFrame(follow);
+    };
+    const setOpen = (open: boolean) => {
+      btn.setAttribute("aria-expanded", String(open));
+      btn.classList.toggle("is-open", open);
+      cancelAnimationFrame(raf);
+      if (!open) return;
+      follow();
+      if (lens === undefined) lens = initMenuLens(menu);
+      lens?.schedule(0);
+    };
+    const close = () => {
+      if (canPop) menu.hidePopover();
+      else if (menu.classList.contains("is-open")) {
+        menu.classList.remove("is-open");
+        setOpen(false);
+      }
+    };
+    if (canPop) {
+      menu.addEventListener("beforetoggle", (e) => {
+        if ((e as Event & { newState?: string }).newState === "open") place();
+      });
+      menu.addEventListener("toggle", (e) => setOpen((e as Event & { newState?: string }).newState === "open"));
+    } else {
+      btn.addEventListener("click", () => {
+        const open = !menu.classList.contains("is-open");
+        if (open) place();
+        menu.classList.toggle("is-open", open);
+        setOpen(open);
+      });
+      document.addEventListener("click", (e) => {
+        const t = e.target as Node;
+        if (!menu.contains(t) && !btn.contains(t)) close();
+      });
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && menu.classList.contains("is-open")) {
+          close();
+          btn.focus();
+        }
+      });
+    }
+    menu.querySelectorAll("a").forEach((a) => a.addEventListener("click", close));
+    addEventListener("resize", () => {
+      if (innerWidth > 1000) close();
+    });
+  }
+}
 
 /* ── Project cards: cursor tilt + glare ───────────────────── */
 /* Fine pointers only, and only when motion is welcome. Targets are set on
