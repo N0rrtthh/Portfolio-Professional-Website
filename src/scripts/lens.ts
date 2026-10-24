@@ -83,9 +83,11 @@ async function bake(W: number, H: number, s: GlassSettings, dpr: number): Promis
     let rx: number;
     let ry: number;
     if (s.bevelMode < 0.5) {
-      const f = refrPow * (2 + ((hC * 2) / Math.max(zR * 2, 1)) * 0.5) * s.refraction * 30;
-      rx = gx * f - (px / Math.max(hx, 1)) * s.refraction * 4 * depth;
-      ry = gy * f - (py / Math.max(hy, 1)) * s.refraction * 4 * depth;
+      // Scale by zR so displacement is proportional to bevel depth, not panel size.
+      // The * 30 in the original caused full-image doubling on small panels.
+      const f = refrPow * (2 + ((hC * 2) / Math.max(zR * 2, 1)) * 0.5) * s.refraction * zR * 0.18;
+      rx = gx * f - (px / Math.max(hx, 1)) * s.refraction * depth * zR * 0.04;
+      ry = gy * f - (py / Math.max(hy, 1)) * s.refraction * depth * zR * 0.04;
     } else {
       rx = -px * s.refraction * depth * 0.35;
       ry = -py * s.refraction * depth * 0.35;
@@ -171,7 +173,7 @@ async function bake(W: number, H: number, s: GlassSettings, dpr: number): Promis
       continue;
     }
     const depth = smoothstep(0, zR, mid.inside);
-    const slope = s.bevelMode < 0.5 ? (-s.refraction * 4 * depth) / Math.max(hx, 1) : -s.refraction * depth * 0.35;
+    const slope = s.bevelMode < 0.5 ? (-s.refraction * depth * zR * 0.04) / Math.max(hx, 1) : -s.refraction * depth * 0.35;
     const t = { ...mid };
     for (let i = end; i < W - end; i++) {
       t.rx = slope * xOf(i);
