@@ -233,6 +233,13 @@ a:hover { text-decoration-color: currentColor; }
    ══════════════════════════════════════════════════════════ */
 .nav { padding-top: 0; transition: padding-top 0.6s var(--ease-out); }
 .nav.is-scrolled { padding-top: 10px; }
+/* Cover the gap above the pill with the page background so content
+   scrolling into it doesn't show through the glass backdrop-filter. */
+.nav.is-scrolled::before {
+  content: ""; position: absolute; inset: 0 0 auto 0; height: 10px;
+  background: var(--bg);
+  pointer-events: none;
+}
 .nav .nav-inner {
   margin-inline: auto;
   max-width: 100%;
@@ -247,6 +254,7 @@ a:hover { text-decoration-color: currentColor; }
     max-width 0.7s var(--ease-out),
     padding 0.7s var(--ease-out),
     height 0.7s var(--ease-out),
+    margin-top 0.6s var(--ease-out),
     border-radius 0.7s var(--ease-out),
     background-color 0.5s ease,
     border-color 0.5s ease,
@@ -255,6 +263,7 @@ a:hover { text-decoration-color: currentColor; }
 .nav.is-scrolled .nav-inner {
   max-width: min(calc(var(--max) - 2 * var(--gutter)), calc(100% - 20px));
   height: 54px;
+  margin-top: 10px;
   padding-inline: 0.55rem 0.4rem;
   border-radius: 28px;
   border-color: var(--line);
