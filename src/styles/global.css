@@ -234,7 +234,7 @@ a:hover { text-decoration-color: currentColor; }
 .nav { position: sticky; top: 0; z-index: 50; }
 /* Gap cover: sits behind the pill, same colour as the page bg, so
    content scrolling into the 10px gap never shows through the glass. */
-.nav.is-scrolled { padding-top: 10px; background: var(--bg); }
+.nav.is-scrolled { padding-top: 10px; background: transparent; }
 .nav .nav-inner {
   margin-inline: auto;
   max-width: 100%;
