@@ -89,7 +89,7 @@ function load(): Stored {
   } catch {
     /* storage unavailable or corrupt — fall back to Clear */
   }
-  return { preset: "frosted", values: { ...PRESETS.frosted } };
+  return { preset: "clear", values: { ...CLEAR } };
 }
 
 let state = load();
