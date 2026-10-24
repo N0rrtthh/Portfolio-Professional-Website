@@ -19,7 +19,12 @@
    changes. Chromium only (html.liquid-ok); other browsers keep the CSS
    frosted glass.
    ══════════════════════════════════════════════════════════ */
-import { getGlass, onGlass, type GlassSettings } from "./glass-config";
+import { PRESETS, type GlassSettings } from "./glass-config";
+
+/* The nav's own glass: always the default Clear look. Deliberately not the
+   visitor's glass-settings (those style the cards in glass mode), so the
+   panel can never change the nav. */
+const NAV_GLASS: GlassSettings = { ...PRESETS.clear };
 
 const NS = "http://www.w3.org/2000/svg";
 
@@ -315,14 +320,13 @@ export function initNavLens(): void {
   let run = 0;
   let urls: string[] = [];
   const rebake = async () => {
-    if (!nav.classList.contains("is-scrolled")) {
-      html.classList.remove("lens-on");
-      return;
-    }
+    // Baked for whichever shape the nav has: the square full-width bar at
+    // the top of the page or the floating pill once scrolled.
     const { W, H } = size();
     if (W < 40 || H < 20) return;
-    const s = getGlass();
-    const key = `${W}x${H}@${dpr()}|${s.cornerRadius},${s.zRadius},${s.refraction},${s.chromAberration},${s.edgeHighlight},${s.specular},${s.fresnel},${s.bevelMode}`;
+    const r = parseFloat(getComputedStyle(inner).borderTopLeftRadius) || 0;
+    const s = { ...NAV_GLASS, cornerRadius: r };
+    const key = `${W}x${H}r${Math.round(r)}@${dpr()}`;
     if (key === baked) return;
     baked = key;
     const mine = ++run;
@@ -348,14 +352,10 @@ export function initNavLens(): void {
     timer = window.setTimeout(() => void rebake(), delay);
   };
 
-  applyCheap(getGlass());
-  onGlass((s) => {
-    applyCheap(s);
-    schedule(30);
-  });
+  applyCheap(NAV_GLASS);
   new ResizeObserver(() => schedule(160)).observe(inner);
-  // On the first scroll the bar morphs into the pill (0.7s); the resize
-  // observer keeps pushing the bake back until the pill has settled.
+  // Bar ↔ pill morphs (0.7s): the resize observer keeps pushing the bake
+  // back until the new shape has settled; meanwhile the old maps stretch.
   new MutationObserver(() => schedule(160)).observe(nav, { attributes: true, attributeFilter: ["class"] });
   schedule(0);
 }
