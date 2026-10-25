@@ -234,7 +234,7 @@ a:hover { text-decoration-color: currentColor; }
 .nav { position: sticky; top: 0; z-index: 50; }
 /* Gap cover: sits behind the pill, same colour as the page bg, so
    content scrolling into the 10px gap never shows through the glass. */
-.nav.is-scrolled { padding-top: 10px; background: transparent; }
+.nav.is-scrolled { padding-top: 10px; background: transparent !important; border-bottom-color: transparent !important; }
 .nav .nav-inner {
   margin-inline: auto;
   max-width: 100%;
@@ -257,10 +257,10 @@ a:hover { text-decoration-color: currentColor; }
   padding-inline: 0.55rem 0.4rem;
   border-radius: 28px;
   border-color: var(--line);
-  background: color-mix(in srgb, var(--surface) 85%, transparent);
-  box-shadow: 0 1px 2px rgb(20 20 20 / 0.05), 0 14px 34px -16px rgb(20 20 20 / 0.28);
-  -webkit-backdrop-filter: saturate(1.4) blur(10px);
-  backdrop-filter: saturate(1.4) blur(10px);
+  background: color-mix(in srgb, var(--surface) 92%, transparent);
+  box-shadow: var(--shadow);
+  -webkit-backdrop-filter: saturate(1.4) blur(12px);
+  backdrop-filter: saturate(1.4) blur(12px);
 }
 
 /* ══════════════════════════════════════════════════════════
@@ -360,8 +360,8 @@ a:hover { text-decoration-color: currentColor; }
 [data-theme="dark"][data-glass="on"] :is(.skill-row, .fact) { border-color: rgb(255 255 255 / 0.08); }
 
 /* Nav: clear-glass bar at the top, liquid pill once scrolled. */
-:root[data-glass="on"] .nav { background: transparent; }
-:root[data-glass="on"] .nav.is-scrolled { background: transparent; }
+:root[data-glass="on"] .nav { background: transparent !important; border-bottom-color: transparent !important; }
+:root[data-glass="on"] .nav.is-scrolled { background: transparent !important; }
 :root[data-glass="on"] .nav .nav-inner { background: var(--g-fill); border-color: transparent; }
 :root[data-glass="on"] .nav.is-scrolled .nav-inner { background: var(--g-fill-strong); box-shadow: var(--g-depth); border-color: transparent; }
 :root.liquid-ok[data-glass="on"] .nav.is-scrolled .nav-inner,
