@@ -275,6 +275,8 @@ export const otherWork: { name: string; what: string; tech: string; href?: strin
   { name: "JasFocus", what: "Productivity timer with automatic task progression", tech: "React · Vite · Tailwind", href: "https://n0rrtthh.github.io/JasFocus/" },
   { name: "WaveLength", what: "Anonymous real-time chat", tech: "JavaScript · Supabase", href: "https://n0rrtthh.github.io/WaveLength/" },
   { name: "Neon Smash", what: "Arcade game", tech: "Python · Pygame", href: "https://github.com/N0rrtthh/Neon-Smash" },
+  { name: "Portfolio Creative", what: "Creative portfolio website", tech: "HTML · CSS · JavaScript", href: "https://n0rrtthh.github.io/Portfolio-Creative-Website/" },
+  { name: "NORTH", what: "Creative personal site", tech: "HTML · CSS · JavaScript", href: "https://n0rrtthh.github.io/NORTH/" },
 ];
 
 export type Cert = { title: string; issuer: string; year: string; href: string; verify: "Credly" | "Certificate"; featured?: boolean };
