@@ -254,20 +254,7 @@ export const projects: Project[] = [
     github: [{ label: "Source", href: "https://github.com/N0rrtthh/ResuMaker" }],
     live: { label: "Live site", href: "https://n0rrtthh.github.io/ResuMaker/" },
   },
-  {
-    /* DRAFT — not shown until you fill in verified details and set
-       published: true. Nothing here is published yet. */
-    slug: "geopalay",
-    name: "GeoPalay",
-    kind: "Mobile GIS app",
-    year: "",
-    published: false,
-    problem: "A mobile GIS application for rice field measurement and land-efficiency analysis.",
-    contribution: "",
-    tech: [],
-    features: [],
-    details: { role: "", implementation: [], challenges: [], outcome: [] },
-  },
+
 ];
 
 /** Smaller builds listed under the featured projects. */
@@ -276,7 +263,7 @@ export const otherWork: { name: string; what: string; tech: string; href?: strin
   { name: "WaveLength", what: "Anonymous real-time chat", tech: "JavaScript · Supabase", href: "https://n0rrtthh.github.io/WaveLength/" },
   { name: "Neon Smash", what: "Arcade game", tech: "Python · Pygame", href: "https://github.com/N0rrtthh/Neon-Smash" },
   { name: "Portfolio Creative", what: "Creative portfolio website", tech: "HTML · CSS · JavaScript", href: "https://n0rrtthh.github.io/Portfolio-Creative-Website/" },
-  { name: "NORTH", what: "Creative personal site", tech: "HTML · CSS · JavaScript", href: "https://n0rrtthh.github.io/NORTH/" },
+  { name: "NORTH", what: "Web Portfolio for Motion graphic and animationorks", tech: "HTML · CSS · JavaScript", href: "https://n0rrtthh.github.io/NORTH/" },
 ];
 
 export type Cert = { title: string; issuer: string; year: string; href: string; verify: "Credly" | "Certificate"; featured?: boolean };
