@@ -399,7 +399,7 @@ a:hover { text-decoration-color: currentColor; }
    drop shadow comes from the same settings (--lens-shadow, set by JS).
    ══════════════════════════════════════════════════════════ */
 :root.lens-on .nav .nav-inner {
-  background: color-mix(in srgb, var(--bg) 75%, transparent) !important;
+  background: transparent !important;
   border-color: transparent !important;
   box-shadow: var(--lens-shadow, none) !important;
   -webkit-backdrop-filter: url(#nav-lens) !important;

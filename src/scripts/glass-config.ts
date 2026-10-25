@@ -29,20 +29,20 @@ export type PresetName = "clear" | "frosted" | "dark";
 /* Clear: the playground settings this site was tuned with. Frosted and
    Dark apply the library's own Frosted / Dark Glass overrides on top. */
 const CLEAR: GlassSettings = {
-  blurAmount: 0.06,
+  blurAmount: 0.1,
   refraction: 0.69,
-  chromAberration: 0.05,
-  edgeHighlight: 0.05,
+  chromAberration: 0.06,
+  edgeHighlight: 0.01,
   specular: 0,
-  fresnel: 1,
-  distortion: 0,
-  cornerRadius: 40,
-  zRadius: 40,
+  fresnel: 1.03,
+  distortion: 0.09,
+  cornerRadius: 20,
+  zRadius: 28,
   opacity: 1,
   saturation: 0,
   brightness: 0,
   shadowOpacity: 0.3,
-  shadowSpread: 10,
+  shadowSpread: 11,
   bevelMode: 0,
 };
 export const PRESETS: Record<PresetName, GlassSettings> = {
