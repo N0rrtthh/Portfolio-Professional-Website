@@ -254,6 +254,32 @@ export const projects: Project[] = [
     github: [{ label: "Source", href: "https://github.com/N0rrtthh/ResuMaker" }],
     live: { label: "Live site", href: "https://n0rrtthh.github.io/ResuMaker/" },
   },
+  {
+    slug: "creative-portfolio",
+    name: "A Creative Portfolio",
+    kind: "Creative portfolio website",
+    year: "2024",
+    published: true,
+    problem: "",
+    contribution: "Designed and built solo.",
+    tech: ["HTML", "CSS", "JavaScript"],
+    features: [],
+    details: { role: "", implementation: [], challenges: [], outcome: [] },
+    live: { label: "Live site", href: "https://n0rrtthh.github.io/Portfolio-Creative-Website/" },
+  },
+  {
+    slug: "north",
+    name: "NORTH",
+    kind: "Web portfolio for motion graphics and animation",
+    year: "2024",
+    published: true,
+    problem: "",
+    contribution: "Designed and built solo.",
+    tech: ["HTML", "CSS", "JavaScript"],
+    features: [],
+    details: { role: "", implementation: [], challenges: [], outcome: [] },
+    live: { label: "Live site", href: "https://n0rrtthh.github.io/NORTH/" },
+  },
 
 ];
 
@@ -262,8 +288,8 @@ export const otherWork: { name: string; what: string; tech: string; href?: strin
   { name: "JasFocus", what: "Productivity timer with automatic task progression", tech: "React · Vite · Tailwind", href: "https://n0rrtthh.github.io/JasFocus/" },
   { name: "WaveLength", what: "Anonymous real-time chat", tech: "JavaScript · Supabase", href: "https://n0rrtthh.github.io/WaveLength/" },
   { name: "Neon Smash", what: "Arcade game", tech: "Python · Pygame", href: "https://github.com/N0rrtthh/Neon-Smash" },
-  { name: "Portfolio Creative", what: "Creative portfolio website", tech: "HTML · CSS · JavaScript", href: "https://n0rrtthh.github.io/Portfolio-Creative-Website/" },
-  { name: "NORTH", what: "Web Portfolio for Motion graphic and animationorks", tech: "HTML · CSS · JavaScript", href: "https://n0rrtthh.github.io/NORTH/" },
+  { name: "SchedEase", what: "Classroom scheduling system prototype", tech: "Figma", href: "https://figma.fun/1LmgU7" },
+  { name: "Quest of the Adventure Land", what: "Platformer game", tech: "GDevelop", href: "https://shorturl.at/4yaOr" },
 ];
 
 export type Cert = { title: string; issuer: string; year: string; href: string; verify: "Credly" | "Certificate"; featured?: boolean };
