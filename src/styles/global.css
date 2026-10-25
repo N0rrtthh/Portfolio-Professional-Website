@@ -240,9 +240,11 @@ a:hover { text-decoration-color: currentColor; }
   max-width: 100%;
   height: var(--nav-h);
   padding-inline: max(var(--gutter), calc((100% - var(--max)) / 2 + var(--gutter)));
-  background: color-mix(in srgb, var(--bg) 94%, transparent);
+  background: color-mix(in srgb, var(--bg) 85%, transparent);
+  -webkit-backdrop-filter: saturate(1.4) blur(16px);
+  backdrop-filter: saturate(1.4) blur(16px);
   border: 1px solid transparent;
-  /* no bottom border — avoids the slicing line across images */
+  border-bottom: 1px solid var(--line);
   border-radius: 0;
   box-shadow: none;
   transition:
@@ -264,6 +266,15 @@ a:hover { text-decoration-color: currentColor; }
   box-shadow: 0 1px 2px rgb(20 20 20 / 0.05), 0 14px 34px -16px rgb(20 20 20 / 0.28);
   -webkit-backdrop-filter: saturate(1.4) blur(10px);
   backdrop-filter: saturate(1.4) blur(10px);
+}
+:root[data-theme="dark"] .nav .nav-inner {
+  background: color-mix(in srgb, var(--bg) 90%, transparent);
+  border-bottom-color: var(--line);
+}
+:root[data-theme="dark"] .nav.is-scrolled .nav-inner {
+  background: color-mix(in srgb, var(--surface) 80%, transparent);
+  border-color: var(--line-strong);
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.5), 0 14px 34px -16px rgb(0 0 0 / 0.7);
 }
 
 /* ══════════════════════════════════════════════════════════
