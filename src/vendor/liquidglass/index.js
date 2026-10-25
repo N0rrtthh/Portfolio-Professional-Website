@@ -1,13 +1,13 @@
 // src/defaults.ts
 var DEFAULTS = {
-  blurAmount: 0,
+  blurAmount: 0.1,
   refraction: 0.69,
   chromAberration: 0.05,
   edgeHighlight: 0.05,
   specular: 0,
   fresnel: 1,
   distortion: 0,
-  cornerRadius: 65,
+  cornerRadius: 40,
   zRadius: 40,
   opacity: 1,
   saturation: 0,
