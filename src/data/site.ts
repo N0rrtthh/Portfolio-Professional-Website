@@ -227,7 +227,7 @@ export const projects: Project[] = [
     kind: "Web app",
     year: "2026",
     published: true,
-    problem: "Most résumé builders are paywalled or ignore what gets past applicant tracking systems.",
+    problem: "Most resume builders are paywalled or ignore what gets past applicant tracking systems.",
     contribution: "Designed and built it solo — React, TypeScript and Vite, deployed with GitHub Actions.",
     tech: ["React", "TypeScript", "Vite", "GitHub Actions"],
     features: [
@@ -265,19 +265,21 @@ export const projects: Project[] = [
     tech: ["HTML", "CSS", "JavaScript"],
     features: [],
     details: { role: "", implementation: [], challenges: [], outcome: [] },
+    image: "creative-portfolio",
     live: { label: "Live site", href: "https://n0rrtthh.github.io/Portfolio-Creative-Website/" },
   },
   {
     slug: "north",
     name: "NORTH",
     kind: "Web portfolio for motion graphics and animation",
-    year: "2024",
+    year: "2022",
     published: true,
     problem: "",
-    contribution: "Designed and built solo.",
+    contribution: "This is my first portfolio website, built solo to showcase my motion graphics and animation work.",
     tech: ["HTML", "CSS", "JavaScript"],
     features: [],
     details: { role: "", implementation: [], challenges: [], outcome: [] },
+    image: "north",
     live: { label: "Live site", href: "https://n0rrtthh.github.io/NORTH/" },
   },
 
@@ -287,9 +289,9 @@ export const projects: Project[] = [
 export const otherWork: { name: string; what: string; tech: string; href?: string }[] = [
   { name: "JasFocus", what: "Productivity timer with automatic task progression", tech: "React · Vite · Tailwind", href: "https://n0rrtthh.github.io/JasFocus/" },
   { name: "WaveLength", what: "Anonymous real-time chat", tech: "JavaScript · Supabase", href: "https://n0rrtthh.github.io/WaveLength/" },
-  { name: "Neon Smash", what: "Arcade game", tech: "Python · Pygame", href: "https://github.com/N0rrtthh/Neon-Smash" },
-  { name: "SchedEase", what: "Classroom scheduling system prototype", tech: "Figma", href: "https://figma.fun/1LmgU7" },
-  { name: "Quest of the Adventure Land", what: "Platformer game", tech: "GDevelop", href: "https://shorturl.at/4yaOr" },
+  { name: "Neon Smash", what: "An Arcade game made in python", tech: "Python · Pygame", href: "https://github.com/N0rrtthh/Neon-Smash" },
+  { name: "SchedEase", what: "A Classroom scheduling system prototype", tech: "Figma", href: "https://figma.fun/1LmgU7" },
+  { name: "Quest of the Adventure Land", what: "A Platformer game developed in GDevelop", tech: "GDevelop", href: "https://shorturl.at/4yaOr" },
 ];
 
 export type Cert = { title: string; issuer: string; year: string; href: string; verify: "Credly" | "Certificate"; featured?: boolean };
