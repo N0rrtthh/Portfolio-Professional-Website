@@ -335,13 +335,17 @@ export function initNavLens(): void {
     }
     urls.forEach((u) => u.startsWith("blob:") && URL.revokeObjectURL(u));
     urls = fresh;
+    html.classList.remove("lens-on");
     mapR.setAttribute("href", m.r);
     mapG.setAttribute("href", m.g);
     mapB.setAttribute("href", m.b);
     mapL.setAttribute("href", m.light);
     for (const d of [dR, dG, dB]) d.setAttribute("scale", String(m.scale));
     stretch();
-    html.classList.add("lens-on");
+    // Wait for the compositor to decode the new blob URLs before switching
+    // the filter on; without this, GPUs that decode feImage lazily render
+    // the filter with empty sources → solid white backdrop.
+    requestAnimationFrame(() => requestAnimationFrame(() => html.classList.add("lens-on")));
   };
   const schedule = (delay: number) => {
     stretch();
