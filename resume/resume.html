@@ -1,78 +1,138 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8">
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Elroni Quinones — Résumé</title>
 <meta name="author" content="Elroni Quiñones">
-<meta name="description" content="Résumé of Elroni Quiñones, Software Developer">
+<meta name="description" content="Résumé of Elroni Quiñones, early-career software developer">
 <style>
-  @page { size: A4; margin: 11mm 14mm 10mm; }
+  @page { size: A4; margin: 10mm 13mm 9mm; }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: Arial, Helvetica, sans-serif; font-size: 9.6pt; line-height: 1.33; color: #111; }
-  h1 { font-size: 20pt; letter-spacing: 0.2px; line-height: 1.1; }
-  .headline { font-size: 10.5pt; font-weight: bold; color: #1f3fbf; margin-top: 2px; }
-  .contact { margin-top: 4px; font-size: 9pt; color: #222; }
-  h2 { font-size: 10pt; text-transform: uppercase; letter-spacing: 0.8px; margin-top: 8px; padding-bottom: 2px; border-bottom: 1px solid #222; }
-  p.summary { margin-top: 4px; }
-  .entry { margin-top: 5px; }
-  .row { display: flex; justify-content: space-between; gap: 12px; }
+  body { font-family: Arial, Helvetica, sans-serif; font-size: 9.2pt; line-height: 1.28; color: #111; }
+  h1 { font-size: 20pt; letter-spacing: .2px; line-height: 1.08; }
+  .headline { font-size: 10pt; font-weight: bold; color: #1f3fbf; margin-top: 2px; }
+  .contact { margin-top: 4px; font-size: 8.5pt; color: #222; overflow-wrap: anywhere; }
+  h2 { font-size: 9.7pt; text-transform: uppercase; letter-spacing: .7px; margin-top: 7px; margin-bottom: 3px; padding-bottom: 2px; border-bottom: 1px solid #222; }
+  p.summary { margin-top: 3px; }
+  .entry { margin-top: 4px; break-inside: avoid; }
+  .row { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
   .title { font-weight: bold; }
-  .meta { color: #333; }
-  .date { white-space: nowrap; font-weight: bold; }
-  ul { margin: 2px 0 0 15px; }
-  ul.two { columns: 2; column-gap: 22px; }
-  li { margin-top: 1.5px; }
-  .skills p { margin-top: 3px; }
-  .skills b { display: inline; }
+  .meta { color: #333; font-size: 8.5pt; margin-top: 1px; }
+  .date { white-space: nowrap; font-weight: bold; font-size: 8.5pt; }
+  ul { margin: 2px 0 0 15px; padding: 0; }
+  li { margin-top: 1px; }
+  .skills p { margin-top: 2px; }
   a { color: inherit; text-decoration: none; }
-</style></head>
+  .cert-note { margin-bottom: 2px; }
+  @media screen {
+    body { max-width: 850px; margin: 24px auto; padding: 24px; box-shadow: 0 1px 12px #00000018; }
+  }
+  @media print {
+    body { max-width: none; margin: 0; padding: 0; }
+    a { text-decoration: none; }
+  }
+</style>
+</head>
 <body>
-  <h1>ELRONI QUIÑONES</h1>
-  <div class="headline">Software Developer | Web &amp; Mobile Applications | Automation</div>
-  <div class="contact">Dasmariñas, Cavite, PH  |  0908 583 8289  |  quinoneselroni@gmail.com  |  linkedin.com/in/elroni-quinones  |  github.com/N0rrtthh</div>
+  <header>
+    <h1>ELRONI QUIÑONES</h1>
+    <div class="headline">Software Developer | Web &amp; Mobile Applications</div>
+    <div class="contact">
+      Dasmariñas, Cavite, Philippines | 0908 583 8289 | <a href="mailto:quinoneselroni@gmail.com">quinoneselroni@gmail.com</a><br>
+      LinkedIn: <a href="https://linkedin.com/in/elroni-quinones">linkedin.com/in/elroni-quinones</a> |
+      GitHub: <a href="https://github.com/N0rrtthh">github.com/N0rrtthh</a> |
+      Portfolio: <a href="https://n0rrtthh.github.io/Portfolio-Professional-Website/">n0rrtthh.github.io/Portfolio-Professional-Website</a>
+    </div>
+  </header>
 
-  <h2>Summary</h2>
-  <p class="summary">Early-career software developer and BS Computer Science student at Cavite State University. Shipped a franchise order management portal (React, Node.js, MySQL) now in active use at BidaBoss Inc., a Flutter e-commerce app, and an offline multiplayer Android game in Godot. Seeking an entry-level developer role.</p>
+  <section>
+    <h2>Professional Summary</h2>
+    <p class="summary">Early-career software developer and BS Computer Science student at Cavite State University with hands-on experience building web and mobile applications. Developed a React and Node.js franchise order management portal used by BidaBoss Inc., a Flutter e-commerce app, and an Android educational game with offline multiplayer synchronization. Seeking an entry-level software development role.</p>
+  </section>
 
-  <h2>Technical Skills</h2>
-  <div class="skills">
-    <p><b>Languages:</b> JavaScript, TypeScript, Dart, Python, GDScript, SQL, HTML, CSS</p>
-    <p><b>Web:</b> React, Next.js, Node.js, Vite, Tailwind CSS</p>
-    <p><b>Mobile &amp; Games:</b> Flutter, FlutterFlow, React Native, Godot (Android export)</p>
-    <p><b>Backend &amp; Data:</b> MySQL, Firebase, Supabase, MongoDB, REST APIs</p>
-    <p><b>Tools &amp; Workflow:</b> Git &amp; GitHub, GitHub Actions (CI/CD), GitHub Pages, Android Studio, Figma, VS Code</p>
-  </div>
+  <section>
+    <h2>Technical Skills</h2>
+    <div class="skills">
+      <p><b>Languages:</b> JavaScript, TypeScript, Dart, Python, GDScript, SQL, HTML, CSS</p>
+      <p><b>Web Development:</b> React, Next.js, Node.js, Vite, Tailwind CSS</p>
+      <p><b>Mobile &amp; Game Development:</b> Flutter, FlutterFlow, React Native, Godot (Android export)</p>
+      <p><b>Backend &amp; Databases:</b> MySQL, Firebase, Supabase, MongoDB, REST APIs</p>
+      <p><b>Tools &amp; Workflow:</b> Git, GitHub, GitHub Actions (CI/CD), GitHub Pages, Android Studio, Figma, VS Code</p>
+    </div>
+  </section>
 
-  <h2>Experience</h2>
-  <div class="entry">
-    <div class="row"><span><span class="title">Software Engineer &amp; Application Developer Intern (OJT)</span> — BidaBoss Inc., Pasig City</span><span class="date">Jul 2025 – Dec 2025</span></div>
-    <ul><li>Developed the BidaBoss Agent Portal, a centralized web-based franchise order management system, with React and Node.js on MySQL — now live and in use by the company.</li><li>Built the BidaBoss e-commerce mobile app in Flutter with a MySQL backend: sales overview, order statuses, inventory, store and orders.</li></ul>
-  </div>
+  <section>
+    <h2>Experience</h2>
+    <div class="entry">
+      <div class="row">
+        <span><span class="title">Software Engineer &amp; Application Developer Intern (OJT)</span> — BidaBoss Inc., Pasig City</span>
+        <span class="date">Aug 2025 – Sep 2025</span>
+      </div>
+      <ul>
+        <li>Developed the BidaBoss Agent Portal, a centralized franchise order management system using React and Node.js with a MySQL database; the portal is live and used by the company.</li>
+        <li>Built a Flutter e-commerce mobile app connected to a MySQL backend, including sales overview, order statuses, inventory, store, and order screens.</li>
+      </ul>
+    </div>
+  </section>
 
-  <h2>Projects</h2>
-  <div class="entry">
-    <div class="row"><span class="title">WaterWise — Educational Android Game (Undergraduate Thesis)</span><span class="date">2025 – 2026</span></div>
-    <div class="meta">Godot, GDScript, Android, CRDT — github.com/N0rrtthh/WaterWise</div>
-    <ul><li>Co-developed a Godot game on water conservation with single-player and offline co-op multiplayer over a phone's Wi-Fi hotspot, as one of three thesis proponents.</li><li>Implemented rule-based rolling-window adaptive difficulty (Weighted Proficiency Index over five games) and an integer-only G-Counter CRDT for score sync.</li><li>Averaged 28.2–29.6 FPS on a Motorola Moto E5 Plus; sync replicas converged in all 180 trials at up to 90% packet loss with updates 76–83% smaller than JSON.</li></ul>
-  </div>
-  <div class="entry">
-    <div class="row"><span class="title">ResuMaker — Résumé Builder Web App</span><span class="date">2026</span></div>
-    <div class="meta">React, TypeScript, Vite, GitHub Actions — n0rrtthh.github.io/ResuMaker</div>
-    <ul><li>Built a two-panel résumé editor with live preview, an ATS-inspired quality score, JSON import/export and print-to-PDF; optional OpenAI review with a local fallback.</li></ul>
-  </div>
-  <div class="entry">
-    <div class="row"><span class="title">QuickAttend — QR Attendance System (Web + Mobile)</span><span class="date">2024</span></div>
-    <div class="meta">FlutterFlow, Flutter, Dart, Firebase — quick-attend-web-1dsail.flutterflow.app</div>
-    <ul><li>Built a web admin that issues a QR code per session and a mobile scanner that adds face recognition as a second verification factor.</li></ul>
-  </div>
+  <section>
+    <h2>Selected Projects</h2>
+    <div class="entry">
+      <div class="row"><span class="title">WaterWise — Educational Android Game (Undergraduate Thesis)</span><span class="date">2025–2026</span></div>
+      <div class="meta">Godot, GDScript, Android, CRDT | <a href="https://github.com/N0rrtthh/WaterWise">github.com/N0rrtthh/WaterWise</a></div>
+      <ul>
+        <li>Co-developed a water-conservation game with single-player and offline co-op multiplayer over a phone’s Wi-Fi hotspot as one of three thesis proponents.</li>
+        <li>Implemented rule-based adaptive difficulty using a rolling five-game proficiency window and an integer-only G-Counter CRDT for score synchronization.</li>
+        <li>Measured 28.2–29.6 FPS on a Motorola Moto E5 Plus; replicas converged in all 180 test trials at up to 90% packet loss, with synchronization updates 76–83% smaller than JSON.</li>
+      </ul>
+    </div>
+    <div class="entry">
+      <div class="row"><span class="title">ResuMaker — Résumé Builder Web App</span><span class="date">2026</span></div>
+      <div class="meta">React, TypeScript, Vite, GitHub Actions | <a href="https://n0rrtthh.github.io/ResuMaker/">n0rrtthh.github.io/ResuMaker</a></div>
+      <ul><li>Built a two-panel résumé editor with live preview, ATS-inspired quality feedback, JSON import/export, print-to-PDF, and optional OpenAI review with a local fallback.</li></ul>
+    </div>
+    <div class="entry">
+      <div class="row"><span class="title">QuickAttend — QR Attendance System (Web &amp; Mobile)</span><span class="date">2024</span></div>
+      <div class="meta">FlutterFlow, Flutter, Dart, Firebase | <a href="https://quick-attend-web-1dsail.flutterflow.app/">quick-attend-web-1dsail.flutterflow.app</a></div>
+      <ul><li>Built a web admin tool to issue session QR codes and a mobile scanner that uses face recognition as a second verification factor.</li></ul>
+    </div>
+    <div class="entry">
+      <div class="title">Additional Projects</div>
+      <p>JasFocus (productivity timer), WaveLength (anonymous real-time chat), Neon Smash (Python/Pygame arcade game), and other web projects. Visit the portfolio and GitHub profile for additional projects and details.</p>
+    </div>
+  </section>
 
-  <h2>Education</h2>
-  <div class="entry">
-    <div class="row"><span><span class="title">BS Computer Science</span> — Cavite State University – Main Campus, Indang, Cavite</span><span class="date">2022 – Present</span></div>
-    <div class="meta">Thesis: WaterWise — an educational game using deterministic rule-based adaptive difficulty and CRDT synchronization (defended 2026).</div>
-  </div>
+  <section>
+    <h2>Education</h2>
+    <div class="entry">
+      <div class="row"><span><span class="title">BS Computer Science</span> — Cavite State University, Main Campus, Indang, Cavite</span><span class="date">2022–Present</span></div>
+      <div class="meta">Undergraduate thesis: WaterWise, an educational game using deterministic rule-based adaptive difficulty and CRDT synchronization; defended in 2026.</div>
+    </div>
+  </section>
 
-  <h2>Certifications</h2>
-  <ul><li>AI Fundamentals: Foundations for Understanding AI — Cisco, IBM SkillsBuild (2026)</li><li>Enterprise Design Thinking Practitioner — IBM SkillsBuild (2026)</li><li>Ethical Hacker — Cisco, DICT-ITU (2026)</li><li>JavaScript Essentials 2 — Cisco, DICT-ITU (2026)</li><li>AI Fundamentals: Language and Vision in AI — Cisco, IBM SkillsBuild (2026)</li><li>Python Essentials 2 — Cisco, DICT-ITU (2026)</li></ul>
+  <section>
+    <h2>Certifications</h2>
+    <p class="cert-note"><b>29 certifications completed</b> — selected relevant credentials include:</p>
+    <ul>
+      <li>AI Fundamentals: Foundations for Understanding AI — Cisco / IBM SkillsBuild (2026)</li>
+      <li>AI Fundamentals: Language and Vision in AI — Cisco / IBM SkillsBuild (2026)</li>
+      <li>Enterprise Design Thinking Practitioner — IBM SkillsBuild (2026)</li>
+      <li>Ethical Hacker — Cisco / DICT-ITU (2026)</li>
+      <li>JavaScript Essentials 2 — Cisco / DICT-ITU (2026)</li>
+      <li>Python Essentials 2 — Cisco / DICT-ITU (2026)</li>
+      <li>Data Analytics: Your Game-Changer for 2025 — UniAthena</li>
+    </ul>
+    <p class="meta">See portfolio for the complete certification list and available verification links.</p>
+  </section>
 
-  <h2>Leadership &amp; Activities</h2>
-  <ul><li><b>VP for Public Relations &amp; Information</b>, Computer Science Student Organization, CvSU (2023 – 2024)</li><li><b>Spade Member</b>, Amazon Web Services Learning Club, CvSU (2024 – 2025)</li><li><b>Member</b>, Junior Philippine Computer Society (JPCS), CvSU (2023 – 2024)</li></ul>
-</body></html>
+  <section>
+    <h2>Leadership &amp; Activities</h2>
+    <ul>
+      <li><b>VP for Public Relations &amp; Information</b>, Computer Science Student Organization, CvSU (2023–2024)</li>
+      <li><b>Spade Member</b>, Amazon Web Services Learning Club, CvSU (2024–2025)</li>
+      <li><b>Member</b>, Junior Philippine Computer Society (JPCS), CvSU (2023–2024)</li>
+    </ul>
+  </section>
+</body>
+</html>
