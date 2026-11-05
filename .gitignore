@@ -5,3 +5,6 @@ dist/
 .env.*
 !.env.example
 .DS_Store
+
+# Private tools (Cert Manager), kept local
+tools/

@@ -4,7 +4,7 @@ A one-page, recruiter-first portfolio. Static HTML from [Astro](https://astro.bu
 
 ## Edit content
 
-Everything visitors read lives in **`src/data/site.ts`**: name, intro, links, projects, skills, experience, certifications.
+Everything visitors read lives in **`src/data/site.ts`**: name, intro, links, projects, skills, experience. Certifications live in **`src/data/certifications.json`** (edit by hand or with the Cert Manager app; array order is display order).
 Empty optional fields are simply not rendered, so nothing half-finished ever shows up on the site.
 
 - **Add a project screenshot:** put the image in `src/assets/`, register it in `src/components/ProjectMedia.astro`, and use its key as `image` in `site.ts`.
@@ -47,7 +47,7 @@ public/resume/            ← downloadable résumé PDF
 
 ## Look & motion
 
-- Section order: Hero → Selected projects → Certifications (all 29) → Skills → About → GitHub activity → Contact.
+- Section order: Hero → Selected projects → Certifications (all of them) → Skills → About → GitHub activity → Contact.
 - Every section opens like the hero: heading rises out of a mask, an accent hairline draws across, content lifts in on a stagger. Reduced-motion visitors get gentle fades instead; without JavaScript everything is simply visible.
 - Project cards tilt toward the cursor, a glare follows it, and the screenshot zooms with slight parallax (mouse/trackpad only).
 - Nav: a full-width square bar at the top that morphs into a floating pill once you scroll (all modes).
