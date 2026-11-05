@@ -8,18 +8,26 @@
     "featured": true
   },
   {
-    "title": "Enterprise Design Thinking Practitioner",
-    "issuer": "IBM SkillsBuild",
+    "title": "AWS Educate Machine Learning Foundations",
+    "issuer": "Amazon Web Services (AWS)",
     "year": "2026",
-    "href": "https://www.credly.com/badges/0cfc014b-0986-48e3-892c-54c639a9ab0e/public_url",
+    "href": "https://www.credly.com/badges/498a75f1-82c4-459c-9721-04892f7d8898/public_url",
     "verify": "Credly",
     "featured": true
   },
   {
-    "title": "Ethical Hacker",
+    "title": "Data Science Essentials with Python",
     "issuer": "Cisco · DICT-ITU",
     "year": "2026",
-    "href": "https://www.credly.com/badges/a4a574a4-2c88-43c3-97fa-6d867e815055/public_url",
+    "href": "https://www.credly.com/badges/664f0975-7c01-47fc-8a96-43bba8690442/public_url",
+    "verify": "Credly",
+    "featured": true
+  },
+  {
+    "title": "Data Analytics Essentials",
+    "issuer": "Cisco · DICT-ITU",
+    "year": "2026",
+    "href": "https://www.credly.com/badges/df779424-ba5e-4387-8335-44607c053587/public_url",
     "verify": "Credly",
     "featured": true
   },
@@ -28,8 +36,21 @@
     "issuer": "Cisco · DICT-ITU",
     "year": "2026",
     "href": "https://www.credly.com/badges/f103bf83-5b0e-41fe-a99b-0d79489d62e3/public_url",
-    "verify": "Credly",
-    "featured": true
+    "verify": "Credly"
+  },
+  {
+    "title": "Enterprise Design Thinking Practitioner",
+    "issuer": "IBM SkillsBuild",
+    "year": "2026",
+    "href": "https://www.credly.com/badges/0cfc014b-0986-48e3-892c-54c639a9ab0e/public_url",
+    "verify": "Credly"
+  },
+  {
+    "title": "Ethical Hacker",
+    "issuer": "Cisco · DICT-ITU",
+    "year": "2026",
+    "href": "https://www.credly.com/badges/a4a574a4-2c88-43c3-97fa-6d867e815055/public_url",
+    "verify": "Credly"
   },
   {
     "title": "AWS Educate Introduction to Cloud 101",
@@ -43,13 +64,6 @@
     "issuer": "Amazon Web Services (AWS)",
     "year": "2026",
     "href": "https://www.credly.com/badges/bef87852-4abd-4587-8cbc-4f3028b0da5a/public_url",
-    "verify": "Credly"
-  },
-  {
-    "title": "AWS Educate Machine Learning Foundations",
-    "issuer": "Amazon Web Services (AWS)",
-    "year": "2026",
-    "href": "https://www.credly.com/badges/498a75f1-82c4-459c-9721-04892f7d8898/public_url",
     "verify": "Credly"
   },
   {
@@ -120,20 +134,6 @@
     "issuer": "Cisco · DICT-ITU · DICT ILCDB",
     "year": "2026",
     "href": "https://www.credly.com/badges/e0cc3f70-ed75-40fb-af86-7f20d0348efa/public_url",
-    "verify": "Credly"
-  },
-  {
-    "title": "Data Science Essentials with Python",
-    "issuer": "Cisco · DICT-ITU",
-    "year": "2026",
-    "href": "https://www.credly.com/badges/664f0975-7c01-47fc-8a96-43bba8690442/public_url",
-    "verify": "Credly"
-  },
-  {
-    "title": "Data Analytics Essentials",
-    "issuer": "Cisco · DICT-ITU",
-    "year": "2026",
-    "href": "https://www.credly.com/badges/df779424-ba5e-4387-8335-44607c053587/public_url",
     "verify": "Credly"
   },
   {
