@@ -2,10 +2,10 @@
    SITE CONTENT — the only file you need to edit
    ──────────────────────────────────────────────────────────
    Every name, link, project, skill and certificate on the site (and in
-   the generated résumé, see scripts/build-resume.mjs) comes from here.
+   the generated resume, see scripts/build-resume.mjs) comes from here.
 
    Rules this file follows — keep them when you edit:
-   · Only facts that can be backed up (résumé, thesis manuscript,
+   · Only facts that can be backed up (resume, thesis manuscript,
      public repos). No invented metrics, links or features.
    · Optional fields left empty are simply not rendered, so missing
      info never shows up as "TODO" on the live site.
@@ -30,7 +30,7 @@ export const profile = {
   availability: "Open to entry-level roles",
   location: "Dasmariñas, Cavite, Philippines",
   email: "quinoneselroni@gmail.com",
-  /** Résumé only — not shown on the website. Remove to omit. */
+  /** Resume only — not shown on the website. Remove to omit. */
   phone: "0908 583 8289",
   github: "https://github.com/N0rrtthh",
   githubHandle: "N0rrtthh",
@@ -256,10 +256,9 @@ export const projects: Project[] = [
       outcome: [],
     },
     image: "pasado",
-    phoneImage: "pasado-mobile",
-    github: [{ label: "Source", href: "https://github.com/N0rrtthh/Pasado---CSC-Exam-Reviewer" }],
-    live: { label: "Web app", href: "https://n0rrtthh.github.io/Pasado---CSC-Exam-Reviewer/" },
-    download: { label: "Android APK", href: "https://github.com/N0rrtthh/Pasado---CSC-Exam-Reviewer/releases/latest" },
+    github: [{ label: "Source", href: "https://github.com/N0rrtthh/Pasado-CSC-Exam-Reviewer-App" }],
+    live: { label: "Web app", href: "https://n0rrtthh.github.io/Pasado-CSC-Exam-Reviewer-App/" },
+    download: { label: "Android APK", href: "https://github.com/N0rrtthh/Pasado-CSC-Exam-Reviewer-App/releases/latest" },
   },
   {
     slug: "resumaker",
@@ -326,13 +325,64 @@ export const projects: Project[] = [
 
 ];
 
-/** Smaller builds listed under the featured projects. */
-export const otherWork: { name: string; what: string; tech: string; href?: string }[] = [
-  { name: "JasFocus", what: "Productivity timer with automatic task progression", tech: "React · Vite · Tailwind", href: "https://n0rrtthh.github.io/JasFocus/" },
-  { name: "WaveLength", what: "Anonymous real-time chat", tech: "JavaScript · Supabase", href: "https://n0rrtthh.github.io/WaveLength/" },
-  { name: "Neon Smash", what: "An Arcade game made in python", tech: "Python · Pygame", href: "https://github.com/N0rrtthh/Neon-Smash" },
-  { name: "SchedEase", what: "A Classroom scheduling system prototype", tech: "Figma", href: "https://figma.fun/1LmgU7" },
-  { name: "Quest of the Adventure Land", what: "A Platformer game developed in GDevelop", tech: "GDevelop", href: "https://shorturl.at/4yaOr" },
+/** Smaller builds listed under the featured projects, as an accordion:
+    each row opens to a screenshot (`image`, a key in ProjectMedia) and a
+    short write-up. */
+export type OtherWork = {
+  name: string;
+  what: string;
+  tech: string;
+  href?: string;
+  /** Label for the link button, e.g. "Live site", "Source", "Prototype". */
+  linkLabel?: string;
+  image?: string;
+  details?: string;
+};
+export const otherWork: OtherWork[] = [
+  {
+    name: "JasFocus",
+    what: "Productivity timer with automatic task progression",
+    tech: "React · Vite · Tailwind",
+    href: "https://n0rrtthh.github.io/JasFocus/",
+    linkLabel: "Live site",
+    image: "jasfocus",
+    details: "A minimalist task timer that moves to the next task on its own, tracks progress in a bento-grid layout and celebrates finished tasks. Runs fully in the browser, no backend.",
+  },
+  {
+    name: "WaveLength",
+    what: "Anonymous real-time chat",
+    tech: "JavaScript · Supabase",
+    href: "https://n0rrtthh.github.io/WaveLength/",
+    linkLabel: "Live site",
+    image: "wavelength",
+    details: "Real-time chat on Supabase Realtime channels with no accounts and ephemeral messages, so conversations happen through ideas rather than identity.",
+  },
+  {
+    name: "Neon Smash",
+    what: "An arcade game made in Python",
+    tech: "Python · Pygame",
+    href: "https://github.com/N0rrtthh/Neon-Smash",
+    linkLabel: "Source",
+    image: "neon-smash",
+    details: "A neon brick-breaker: bounce the ball off the paddle to clear the wall of blocks, with a title screen, player names and a top-scores leaderboard saved between runs.",
+  },
+  {
+    name: "SchedEase",
+    what: "A classroom scheduling system prototype",
+    tech: "Figma",
+    href: "https://figma.fun/1LmgU7",
+    linkLabel: "Open prototype",
+    image: "schedease",
+    details: "A clickable Figma prototype of an organizing system for simplifying classroom scheduling at Cavite State University, with sign-in and sign-up flows.",
+  },
+  {
+    name: "Quest of the Adventure Land",
+    what: "A platformer game developed in GDevelop",
+    tech: "GDevelop",
+    href: "https://shorturl.at/4yaOr",
+    linkLabel: "Play",
+    details: "A 2D platformer built in GDevelop.",
+  },
 ];
 
 export type Cert = {

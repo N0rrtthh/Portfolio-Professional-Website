@@ -7,7 +7,7 @@ const list = projects.filter((p) => p.published);
 <section id="projects" class="section container" aria-labelledby="projects-title">
   <div class="section-head reveal-head">
     <h2 id="projects-title" class="section-title reveal-title">Selected projects</h2>
-    <p class="section-lede reveal" style="--i:1">Four builds that show how I work — what the problem was, what I did, and what shipped. Open any project for the full story.</p>
+    <p class="section-lede reveal" style="--i:1">Builds that show how I work: what the problem was, what I did, and what shipped. Open any project for the full story.</p>
   </div>
 
   <ul class="grid" role="list">
@@ -64,17 +64,34 @@ const list = projects.filter((p) => p.published);
     <ul class="other-list" role="list">
       {otherWork.map((o) => (
         <li>
-          {o.href ? (
-            <a href={o.href} target="_blank" rel="noopener noreferrer">
+          <details class="other-item" name="also-built">
+            <summary class="other-sum">
               <span class="other-name">{o.name}</span>
               <span class="other-what">{o.what}</span>
               <span class="other-tech">{o.tech}</span>
-              <Icon name="arrowUpRight" size={15} />
-              <span class="sr-only">(opens in new tab)</span>
-            </a>
-          ) : (
-            <span class="other-row"><span class="other-name">{o.name}</span><span class="other-what">{o.what}</span><span class="other-tech">{o.tech}</span></span>
-          )}
+              <span class="other-chev" aria-hidden="true"><Icon name="chevron" size={16} /></span>
+            </summary>
+            <div class="other-panel">
+              <div class="other-inner">
+                <div class="other-shot">
+                  {o.image ? (
+                    <ProjectMedia image={o.image} alt={`${o.name} screenshot`} />
+                  ) : (
+                    <div class="other-ph" aria-hidden="true"><span>{o.name}</span><small>{o.tech}</small></div>
+                  )}
+                </div>
+                <div class="other-info">
+                  {o.details && <p>{o.details}</p>}
+                  <p class="other-meta">{o.tech}</p>
+                  {o.href && (
+                    <a class="btn btn-ghost btn-sm" href={o.href} target="_blank" rel="noopener noreferrer">
+                      <Icon name={o.linkLabel === "Source" ? "github" : "external"} size={15} /> {o.linkLabel ?? "Open"}<span class="sr-only"> for {o.name} (opens in new tab)</span>
+                    </a>
+                  )}
+                </div>
+              </div>
+            </div>
+          </details>
         </li>
       ))}
     </ul>
@@ -223,13 +240,34 @@ const list = projects.filter((p) => p.published);
   .other-title { font-size: 0.9rem; font-weight: 650; padding-top: 0.7rem; }
   .other-list { padding: 0; list-style: none; border-top: 1px solid var(--line); }
   .other-list li { border-bottom: 1px solid var(--line); }
-  .other-list a, .other-row {
-    display: grid; grid-template-columns: 8rem minmax(0, 1fr) auto 16px; gap: 1rem; align-items: center;
-    padding: 0.7rem 0.25rem; text-decoration: none; min-height: 44px;
+  /* "Also built": an accordion. Rows open to a screenshot and a short
+     write-up; only one is open at a time (details[name]). The height
+     animates where the browser supports it and simply snaps elsewhere. */
+  .other-item { interpolate-size: allow-keywords; }
+  .other-item::details-content { height: 0; overflow: clip; transition: height 0.4s var(--ease-out), content-visibility 0.4s allow-discrete; }
+  .other-item[open]::details-content { height: auto; }
+  .other-sum {
+    display: grid; grid-template-columns: 8rem minmax(0, 1fr) auto 18px; gap: 1rem; align-items: center;
+    padding: 0.7rem 0.25rem; min-height: 44px; cursor: pointer; list-style: none; border-radius: 8px;
+    transition: background-color 0.15s ease;
   }
-  .other-row { grid-template-columns: 8rem minmax(0, 1fr) auto; }
-  .other-list a:hover .other-name { color: var(--accent); }
-  .other-name { font-weight: 600; font-size: 0.92rem; }
+  .other-sum::-webkit-details-marker { display: none; }
+  .other-sum:hover { background: var(--surface-2); }
+  .other-sum:hover .other-name, .other-item[open] .other-name { color: var(--accent); }
+  .other-chev { display: grid; place-items: center; color: var(--muted); transition: transform 0.3s var(--ease-out); }
+  .other-item[open] .other-chev { transform: rotate(180deg); color: var(--ink); }
+  .other-inner { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 1.25rem; padding: 0.35rem 0.25rem 1.1rem; align-items: start; }
+  .other-item[open] .other-inner { animation: other-in 0.45s var(--ease-out) both; }
+  @keyframes other-in { from { opacity: 0; transform: translateY(-6px); } }
+  .other-shot { border-radius: 10px; overflow: hidden; border: 1px solid var(--line); }
+  .other-shot :global(.media) { border-bottom: 0; }
+  .other-ph { aspect-ratio: 16 / 10; display: grid; place-content: center; gap: 0.3rem; text-align: center; background: var(--surface-2); color: var(--muted); }
+  .other-ph span { font-weight: 650; color: var(--ink); }
+  .other-ph small { font-size: 0.78rem; }
+  .other-info { display: grid; gap: 0.7rem; justify-items: start; }
+  .other-info p { margin: 0; color: var(--ink-2, var(--ink)); font-size: 0.92rem; line-height: 1.6; }
+  .other-info .other-meta { color: var(--muted); font-size: 0.8rem; }
+  .other-name { font-weight: 600; font-size: 0.92rem; transition: color 0.15s ease; }
   .other-what { color: var(--muted); font-size: 0.9rem; }
   .other-tech { color: var(--muted); font-size: 0.75rem; }
 
@@ -271,10 +309,10 @@ const list = projects.filter((p) => p.published);
     .other-title { padding-top: 0; }
   }
   @media (max-width: 560px) {
-    .other-list a { grid-template-columns: minmax(0, 1fr) 16px; gap: 0.15rem 0.75rem; }
-    .other-list a .other-name { grid-column: 1; }
-    .other-list a .other-what, .other-list a .other-tech { grid-column: 1; }
-    .other-list a :global(svg) { grid-column: 2; grid-row: 1; }
+    .other-sum { grid-template-columns: minmax(0, 1fr) 18px; gap: 0.15rem 0.75rem; }
+    .other-sum .other-name, .other-sum .other-what, .other-sum .other-tech { grid-column: 1; }
+    .other-chev { grid-column: 2; grid-row: 1 / span 3; }
+    .other-inner { grid-template-columns: 1fr; gap: 0.9rem; }
     .case { width: 100vw; max-height: 100svh; height: 100svh; border-radius: 0; border: 0; }
     .case-panel { max-height: 100svh; }
     .case-body { padding: 1rem 1.1rem 1.5rem; }

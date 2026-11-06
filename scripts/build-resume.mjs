@@ -1,12 +1,12 @@
 /* ══════════════════════════════════════════════════════════
-   build-resume — one-page, ATS-friendly résumé PDF
+   build-resume — one-page, ATS-friendly resume PDF
    ──────────────────────────────────────────────────────────
    node scripts/build-resume.mjs
      → public/resume/Elroni-Quinones-Resume.pdf   (downloadable)
      → resume/resume.html                         (source, for review)
 
    Content comes from src/data/site.ts (Node 24 strips the TS types),
-   so the résumé and the website never disagree.
+   so the resume and the website never disagree.
 
    ATS rules followed: single column, standard section headings, real
    selectable text, no tables/columns/icons/images, standard font,
@@ -42,11 +42,11 @@ const resumeProjects = [
     ],
   },
   {
-    name: "ResuMaker — Résumé Builder Web App",
+    name: "ResuMaker — Resume Builder Web App",
     meta: `${rm.tech.join(", ")} · ${rm.year}`,
     link: rm.live?.href,
     points: [
-      "Built a résumé editor whose preview paginates the résumé into real A4/Letter pages exactly as it prints, with five ATS-friendly templates, a built-in checklist and PDF/JSON import.",
+      "Built a resume editor whose preview paginates the resume into real A4/Letter pages exactly as it prints, with five ATS-friendly templates, a built-in checklist and PDF/JSON import.",
     ],
   },
   {
@@ -75,9 +75,9 @@ const contact = [
 
 const html = `<!doctype html>
 <html lang="en"><head><meta charset="utf-8">
-<title>${esc(profile.nameAscii)} — Résumé</title>
+<title>${esc(profile.nameAscii)} — Resume</title>
 <meta name="author" content="${esc(profile.name)}">
-<meta name="description" content="Résumé of ${esc(profile.name)}, Software Developer">
+<meta name="description" content="Resume of ${esc(profile.name)}, Software Developer">
 <style>
   @page { size: A4; margin: 11mm 14mm 10mm; }
   * { box-sizing: border-box; margin: 0; padding: 0; }
