@@ -379,9 +379,10 @@ export const otherWork: OtherWork[] = [
     name: "Quest of the Adventure Land",
     what: "A platformer game developed in GDevelop",
     tech: "GDevelop",
-    href: "https://shorturl.at/4yaOr",
-    linkLabel: "Play",
-    details: "A 2D platformer built in GDevelop.",
+    href: "https://games.gdevelop-app.com/game-eb9d51d1-4b83-488c-822a-d9c32aeea689/index.html",
+    linkLabel: "Play in browser",
+    image: "quest-adventure-land",
+    details: "A 2D pixel-art platformer built in GDevelop: jump across grass platforms, dodge barrels and enemies, and collect coins to raise your score. Plays right in the browser.",
   },
 ];
 
