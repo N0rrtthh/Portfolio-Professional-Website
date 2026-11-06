@@ -326,7 +326,9 @@ a:hover { text-decoration-color: currentColor; }
   -webkit-backdrop-filter: var(--g-blur);
   backdrop-filter: var(--g-blur);
 }
-[data-glass="on"] .nav .nav-inner {
+/* Only the floating pill is glass; the full-width bar at the top of the
+   page stays a plain bar (a full-width backdrop filter is costly). */
+[data-glass="on"] .nav.is-scrolled .nav-inner {
   position: relative;
   -webkit-backdrop-filter: var(--g-blur);
   backdrop-filter: var(--g-blur);
@@ -364,7 +366,6 @@ a:hover { text-decoration-color: currentColor; }
 /* Nav: clear-glass bar at the top, liquid pill once scrolled. */
 :root[data-glass="on"] .nav { background: transparent !important; border-bottom-color: transparent !important; }
 :root[data-glass="on"] .nav.is-scrolled { background: transparent !important; }
-:root[data-glass="on"] .nav .nav-inner { background: var(--g-fill); border-color: transparent; }
 :root[data-glass="on"] .nav.is-scrolled .nav-inner { background: var(--g-fill-strong); box-shadow: var(--g-depth); border-color: transparent; }
 :root.liquid-ok[data-glass="on"] .nav.is-scrolled .nav-inner,
 :root.liquid-ok[data-glass="on"] .btn-ghost {
@@ -398,7 +399,9 @@ a:hover { text-decoration-color: currentColor; }
    glass shader, so the pill itself is just a clear, shaped window; the
    drop shadow comes from the same settings (--lens-shadow, set by JS).
    ══════════════════════════════════════════════════════════ */
-:root.lens-on .nav .nav-inner {
+/* Pill only: at the top of the page the nav is a plain bar, so the lens
+   (and its cost) starts with the bar → pill morph. */
+:root.lens-on .nav.is-scrolled .nav-inner {
   background: transparent !important;
   border-color: transparent !important;
   box-shadow: var(--lens-shadow, none) !important;
@@ -407,8 +410,23 @@ a:hover { text-decoration-color: currentColor; }
 }
 /* The pill follows the panel's corner radius (capped to a full pill). */
 :root.lens-on .nav.is-scrolled .nav-inner { border-radius: min(var(--glass-r, 40px), 27px) !important; }
-:root.lens-on .nav .nav-inner::before,
-:root.lens-on .nav .nav-inner::after { display: none !important; }
+:root.lens-on .nav.is-scrolled .nav-inner::before,
+:root.lens-on .nav.is-scrolled .nav-inner::after { display: none !important; }
+
+/* Lens lite (html.lens-lite): Safari and every iOS browser, which cannot
+   use SVG filters in backdrop-filter. Same baked lighting as an overlay
+   image (--lens-glow), native blur / saturation / brightness, same
+   shadow and shape. */
+:root.lens-lite .nav.is-scrolled .nav-inner {
+  background: var(--lens-glow) center / 100% 100% no-repeat !important;
+  border-color: transparent !important;
+  box-shadow: var(--lens-shadow, none) !important;
+  -webkit-backdrop-filter: var(--lens-lite-filter, blur(2px)) !important;
+  backdrop-filter: var(--lens-lite-filter, blur(2px)) !important;
+  border-radius: min(var(--glass-r, 40px), 27px) !important;
+}
+:root.lens-lite .nav.is-scrolled .nav-inner::before,
+:root.lens-lite .nav.is-scrolled .nav-inner::after { display: none !important; }
 
 /* ── Droplet: hover-hold ring → glass settings ──────────────── */
 @property --arm { syntax: "<number>"; inherits: false; initial-value: 0; }

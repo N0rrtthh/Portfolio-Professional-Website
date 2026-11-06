@@ -15,9 +15,18 @@
    The blur, micro-distortion, brightness, saturation and opacity steps
    are native filter primitives with the shader's constants.
 
-   Maps are rebuilt when the pill settles at a new size or a setting
-   changes. Chromium only (html.liquid-ok); other browsers keep the CSS
-   frosted glass.
+   Maps are rebuilt when the pill's size or a setting changes. Only the
+   floating pill is glass: the full-width bar at the top of the page is a
+   plain bar, so the expensive filter never runs over the whole width.
+   The maps are baked ahead for the pill's size (measured on a hidden
+   probe), so the glass is ready the moment the bar turns into the pill.
+
+   Chromium (html.liquid-ok) gets the full lens. Safari / every iOS
+   browser cannot run SVG filters in backdrop-filter (WebKit bug 245510),
+   so there the pill gets "lens lite" (html.lens-lite): the same baked
+   lighting (fresnel, rim, specular, inner glow) as an overlay image on a
+   native blur / saturation / brightness backdrop, with the same shadow.
+   Everything but the bending of the background matches.
    ══════════════════════════════════════════════════════════ */
 import { getGlass, onGlass, type GlassSettings } from "./glass-config";
 
@@ -57,7 +66,7 @@ type Maps = { r: string; g: string; b: string; light: string; scale: number };
 type Shade = { rx: number; ry: number; cx: number; cy: number; add: number; mul: number; inside: number };
 
 /** Bake the shader's shape-dependent terms for a W×H CSS-px panel. */
-async function bake(W: number, H: number, s: GlassSettings, dpr: number): Promise<Maps> {
+async function bake(W: number, H: number, s: GlassSettings, dpr: number, glowOnly = false): Promise<Maps> {
   // The shader works in device pixels; sample at CSS px, compute in device px.
   const k = dpr;
   const hx = (W * k) / 2;
@@ -183,6 +192,23 @@ async function bake(W: number, H: number, s: GlassSettings, dpr: number): Promis
 
   // feDisplacementMap: offset = scale × (value − 0.5).
   const scale = Math.ceil(maxOff * 2 + 2);
+  // Lens lite (WebKit): only the lighting, as white with the shader's
+  // additive term as alpha, laid over the native backdrop blur.
+  if (glowOnly) {
+    const glow = new Uint8ClampedArray(n * 4);
+    for (let q = 0; q < n * 4; q += 4) {
+      glow[q] = 255;
+      glow[q + 1] = 255;
+      glow[q + 2] = 255;
+      glow[q + 3] = light[q];
+    }
+    const c = document.createElement("canvas");
+    c.width = W;
+    c.height = H;
+    c.getContext("2d")!.putImageData(new ImageData(glow, W, H), 0, 0);
+    const url = await new Promise<string>((resolve) => c.toBlob((b) => resolve(b ? URL.createObjectURL(b) : c.toDataURL())));
+    return { r: "", g: "", b: "", light: url, scale };
+  }
   // PNG encoding happens off the main thread (toBlob).
   const encode = (data: Uint8ClampedArray) =>
     new Promise<string>((resolve) => {
@@ -215,7 +241,24 @@ export function initNavLens(): void {
   const html = document.documentElement;
   const nav = document.querySelector<HTMLElement>(".nav");
   const inner = nav?.querySelector<HTMLElement>(".nav-inner");
-  if (!nav || !inner || !html.classList.contains("liquid-ok")) return;
+  const full = html.classList.contains("liquid-ok");
+  const lite =
+    !full &&
+    typeof CSS !== "undefined" &&
+    (CSS.supports("backdrop-filter", "blur(1px)") || CSS.supports("-webkit-backdrop-filter", "blur(1px)"));
+  if (!nav || !inner || (!full && !lite)) return;
+
+  /* Hidden probe with the pill's classes: its box is the size the pill
+     will have, so the maps can be baked while the page is still at the
+     top and the nav is the full-width bar. */
+  const probe = document.createElement("header");
+  probe.className = "nav is-scrolled";
+  probe.setAttribute("aria-hidden", "true");
+  probe.style.cssText = "position:fixed;left:0;right:0;top:0;visibility:hidden;pointer-events:none;z-index:-1;";
+  const probeInner = document.createElement("div");
+  probeInner.className = "nav-inner";
+  probe.append(probeInner);
+  document.body.append(probe);
 
   /* ── Filter graph (built once; attributes change later) ────── */
   const svg = svgEl("svg", { width: "0", height: "0", "aria-hidden": "true", focusable: "false" });
@@ -297,6 +340,16 @@ export function initNavLens(): void {
       "--lens-shadow",
       a > 0 ? `0 1px ${(sp * 1.414).toFixed(1)}px rgb(0 0 0 / ${(0.65 * a).toFixed(3)}), 0 1px ${(sp * 0.5).toFixed(1)}px rgb(0 0 0 / ${(0.35 * a).toFixed(3)})` : "none",
     );
+    if (lite) {
+      // Same blur, saturation and brightness as the lens (the 1.06 is the
+      // shader's body brightening); a 2px blur floor keeps the links
+      // readable, since WebKit cannot bend the background away from them.
+      const px = Math.max((s.blurAmount * 10.35) / k, 2);
+      html.style.setProperty(
+        "--lens-lite-filter",
+        `blur(${px.toFixed(2)}px) saturate(${Math.max(0, 1 + s.saturation).toFixed(3)}) brightness(${(1.06 * (1 + s.brightness)).toFixed(3)})`,
+      );
+    }
   };
 
   /* ── Bake on settle ──────────────────────────────────────────
@@ -305,6 +358,8 @@ export function initNavLens(): void {
   let baked = "";
   let timer = 0;
   const size = () => ({ W: inner.offsetWidth, H: inner.offsetHeight });
+  // The pill's settled size, whatever shape the nav has right now.
+  const pillSize = () => ({ W: probeInner.offsetWidth, H: probeInner.offsetHeight });
   const stretch = () => {
     const { W, H } = size();
     for (const e of [filter, mapR, mapG, mapB, mapL]) {
@@ -315,23 +370,31 @@ export function initNavLens(): void {
   let run = 0;
   let urls: string[] = [];
   const rebake = async () => {
-    // Baked for whichever shape the nav has: the square full-width bar at
-    // the top of the page or the floating pill once scrolled.
-    const { W, H } = size();
+    // Baked for the floating pill only (the top bar is never glass).
+    const { W, H } = pillSize();
     if (W < 40 || H < 20) return;
-    // Settings from the glass panel; the corner radius is the nav's own
-    // current shape (square bar, or the pill rounded by --glass-r).
-    const r = parseFloat(getComputedStyle(inner).borderTopLeftRadius) || 0;
+    // Settings from the glass panel; the corner radius is the pill's
+    // (--glass-r, capped to a full pill, as in the CSS).
+    const r = Math.min(getGlass().cornerRadius, 27, H / 2);
     const s = { ...getGlass(), cornerRadius: r };
-    const key = `${W}x${H}r${Math.round(r)}@${dpr()}|${s.zRadius},${s.refraction},${s.chromAberration},${s.edgeHighlight},${s.specular},${s.fresnel},${s.bevelMode}`;
+    const key = `${lite ? "lite" : "full"}|${W}x${H}r${Math.round(r)}@${dpr()}|${s.zRadius},${s.refraction},${s.chromAberration},${s.edgeHighlight},${s.specular},${s.fresnel},${s.bevelMode}`;
     if (key === baked) return;
     baked = key;
     const mine = ++run;
-    const m = await bake(W, H, s, dpr());
+    const m = await bake(W, H, s, dpr(), lite);
     const fresh = [m.r, m.g, m.b, m.light];
     if (mine !== run) {
       fresh.forEach((u) => u.startsWith("blob:") && URL.revokeObjectURL(u));
       return; // a newer bake superseded this one
+    }
+    if (lite) {
+      html.style.setProperty("--lens-glow", `url("${m.light}")`);
+      html.classList.add("lens-lite");
+      // Old images go once the new one is in use.
+      const old = urls;
+      urls = fresh;
+      requestAnimationFrame(() => requestAnimationFrame(() => old.forEach((u) => u.startsWith("blob:") && URL.revokeObjectURL(u))));
+      return;
     }
     urls.forEach((u) => u.startsWith("blob:") && URL.revokeObjectURL(u));
     urls = fresh;
@@ -360,9 +423,12 @@ export function initNavLens(): void {
     applyCheap(s);
     schedule(30);
   });
-  new ResizeObserver(() => schedule(160)).observe(inner);
-  // Bar ↔ pill morphs (0.7s): the resize observer keeps pushing the bake
-  // back until the new shape has settled; meanwhile the old maps stretch.
+  // The pill's size follows the viewport (probe) and the bar's layout.
+  const ro = new ResizeObserver(() => schedule(160));
+  ro.observe(inner);
+  ro.observe(probeInner);
+  // Bar ↔ pill morphs: the maps are already baked for the pill, so this
+  // only re-stretches them to the moving box.
   new MutationObserver(() => schedule(160)).observe(nav, { attributes: true, attributeFilter: ["class"] });
   schedule(0);
 }

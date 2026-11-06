@@ -3,7 +3,7 @@
    ──────────────────────────────────────────────────────────
    Opened by resting the pointer on the droplet button (or a long-press /
    Arrow-Down on it). Presets plus every playground slider; changes apply
-   instantly to the nav glass (bar and pill, every mode) and, in glass
+   instantly to the nav glass (the floating pill, every mode) and, in glass
    mode, every card. The panel itself is simple frosted CSS.
    Built on first open, so it costs nothing until someone asks for it.
    ══════════════════════════════════════════════════════════ */
