@@ -46,7 +46,7 @@ const resumeProjects = [
     meta: `${rm.tech.join(", ")} · ${rm.year}`,
     link: rm.live?.href,
     points: [
-      "Built a two-panel résumé editor with live preview, an ATS-inspired quality score, JSON import/export and print-to-PDF; optional OpenAI review with a local fallback.",
+      "Built a résumé editor whose preview paginates the résumé into real A4/Letter pages exactly as it prints, with five ATS-friendly templates, a built-in checklist and PDF/JSON import.",
     ],
   },
   {

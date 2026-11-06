@@ -46,6 +46,11 @@ const list = projects.filter((p) => p.published);
                 <Icon name="external" size={15} /> {p.live.label}<span class="sr-only"> for {p.name} (opens in new tab)</span>
               </a>
             )}
+            {p.download && (
+              <a class="text-link small" href={p.download.href} target="_blank" rel="noopener noreferrer">
+                <Icon name="download" size={15} /> {p.download.label}<span class="sr-only"> for {p.name} (opens in new tab)</span>
+              </a>
+            )}
             {p.note && !p.github && <span class="proj-note"><Icon name="lock" size={14} /> {p.note}</span>}
           </div>
         </div>
@@ -138,6 +143,11 @@ const list = projects.filter((p) => p.published);
                   {p.live && (
                     <a class="btn btn-primary btn-sm" href={p.live.href} target="_blank" rel="noopener noreferrer">
                       <Icon name="external" /> {p.live.label}
+                    </a>
+                  )}
+                  {p.download && (
+                    <a class="btn btn-ghost btn-sm" href={p.download.href} target="_blank" rel="noopener noreferrer">
+                      <Icon name="download" /> {p.download.label}
                     </a>
                   )}
                   {p.github?.map((g) => (

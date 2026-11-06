@@ -110,6 +110,8 @@ export type Project = {
   phoneImage?: string;
   github?: Link[];
   live?: Link;
+  /** A downloadable build, e.g. an Android APK. */
+  download?: Link;
   note?: string; // e.g. "Private company codebase"
 };
 
@@ -224,30 +226,67 @@ export const projects: Project[] = [
     live: { label: "Live demo", href: "https://quick-attend-web-1dsail.flutterflow.app/" },
   },
   {
+    slug: "pasado",
+    name: "Pasado",
+    kind: "Web app + Android app",
+    year: "2026",
+    published: true,
+    problem:
+      "Civil Service Exam reviewers are scattered PDFs and paid apps, and most don't work offline on the phones test-takers actually study on.",
+    contribution: "One codebase I designed and built, shipped as an installable offline web app and as an Android app.",
+    tech: ["JavaScript", "HTML", "CSS", "PWA", "Capacitor", "Android"],
+    features: [
+      "Timed mock exams in the CSE-PPT format for both Professional and Subprofessional levels",
+      "Drills, flashcards, explanations for every answer, a study plan and math lessons played as a game",
+      "Works offline: install it from the browser or get the Android app; progress stays on the device",
+    ],
+    details: {
+      role: "Solo designer and developer.",
+      implementation: [
+        "A single vanilla JavaScript app with the question banks, lessons, exam hacks and the math game loaded as plain scripts.",
+        "A build script packages it as an installable offline web app: a manifest plus a service worker that caches every file and refreshes on each release.",
+        "The same build is wrapped with Capacitor for Android, adding haptics, daily reminder notifications and read-aloud.",
+      ],
+      challenges: [
+        {
+          challenge: "Shipping a web app and an Android app without maintaining two codebases.",
+          approach: "Native features are detected at runtime, so the browser build and the APK run the same app code and the web version simply skips what it can't use.",
+        },
+      ],
+      outcome: [],
+    },
+    image: "pasado",
+    phoneImage: "pasado-mobile",
+    github: [{ label: "Source", href: "https://github.com/N0rrtthh/Pasado---CSC-Exam-Reviewer" }],
+    live: { label: "Web app", href: "https://n0rrtthh.github.io/Pasado---CSC-Exam-Reviewer/" },
+    download: { label: "Android APK", href: "https://github.com/N0rrtthh/Pasado---CSC-Exam-Reviewer/releases/latest" },
+  },
+  {
     slug: "resumaker",
     name: "ResuMaker",
     kind: "Web app",
     year: "2026",
     published: true,
-    problem: "Most resume builders are paywalled or ignore what gets past applicant tracking systems.",
-    contribution: "Designed and built it solo — React, TypeScript and Vite, deployed with GitHub Actions.",
-    tech: ["React", "TypeScript", "Vite", "GitHub Actions"],
+    problem: "Most resume builders are paywalled, and their previews crop or rescale the page, so you only see where it really breaks after exporting.",
+    contribution: "Designed and built it solo: React, TypeScript and Vite, deployed with GitHub Actions.",
+    tech: ["React", "TypeScript", "Vite", "pdf.js", "GitHub Actions"],
     features: [
-      "Two-panel editor with a live résumé preview",
-      "ATS-inspired quality score with actionable feedback",
-      "JSON import/export, local drafts and print-to-PDF",
+      "True A4 / Letter page preview with automatic page breaks and one-click fit to one page",
+      "Five ATS-friendly templates with a small set of design controls",
+      "Built-in resume checklist, PDF and JSON import, text-based PDF export",
     ],
     details: {
       role: "Solo designer and developer.",
       implementation: [
-        "React 19 + TypeScript + Vite single-page app with structured controls for every résumé section.",
-        "Optional AI review through the OpenAI API with a local fallback; the key stays in the browser.",
+        "React 19 + TypeScript + Vite single-page app; several resumes saved in the browser, with undo and redo.",
+        "The resume is cut into blocks, measured at the real column width, and packed Word-style into real pages, so the preview is exactly what prints.",
+        "PDF export runs through the browser's print engine at the exact paper size, so the file keeps selectable text and clickable links for applicant tracking systems.",
         "Continuous deployment to GitHub Pages through GitHub Actions.",
       ],
       challenges: [
         {
-          challenge: "Not every user has (or wants to paste) an API key.",
-          approach: "AI review is optional — without a key it falls back to a local checklist, and drafts never leave the browser.",
+          challenge: "A resume preview that is scaled to fit the screen never shows where the pages actually break.",
+          approach: "Headings are chained to the content after them and long jobs break between bullets, then everything is re-measured when web fonts finish loading.",
         },
       ],
       outcome: [],
